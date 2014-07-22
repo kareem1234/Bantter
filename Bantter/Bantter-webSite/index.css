@@ -1,0 +1,113 @@
+html, body {
+    height: 100%;
+}
+.notActive{
+	display:none;
+}
+.col-xs-4{
+	padding-left: 0px;
+	padding-right: 0px;
+}
+.likesRow{
+	padding-top: 5%;
+	font-size: 150%;
+}
+.row{
+	margin-left: 0px;
+	margin-right:0px;
+}
+.icon{
+	width:30%;
+	height:30%;
+}
+#removePadding{
+	padding-left: 0px;
+	padding-right: 0px;
+}
+.btn{
+	font-size: 150%;
+	border-radius: 0px;
+}
+.container-xs-height{
+	height:100%;
+}
+/* 
+
+Loading page css styles
+
+  */
+
+/* 
+loginPage css styles
+
+*/
+#loginPage_vidContainer{
+	position:fixed;
+	width:100%;
+	height: 100%;
+	z-index: -1;
+}
+#loginPage_bantterLogo{
+	position:fixed;
+	top: -4%;
+	right: 34%;
+	width: 30%;
+	height: 22%;
+}
+#loginPage_slogan{
+	font-family: 'Comfortaa', cursive;
+	position:fixed;
+	text-align: center;
+	top: 15%;
+	right: 0%;
+	width: 100%;
+	height: 10%;
+	color:#00CCFF;
+	font-size: x-large;
+}
+#loginPage_backgroundVid{
+	position: fixed;
+	margin-left: -200%;
+	width: 500%;
+	height: 120%;
+	 z-index: -100;
+	background-size: cover;
+}
+#loginPage_fbLogin{
+	position:fixed;
+	top: 90%;
+	width:20%;
+	left:40%;
+	opacity:0.7;
+	border-radius: 10px;
+}
+@media screen and (max-device-width: 480px) {
+body {
+		background-image:url(vacation-selfies-770.jpg);
+		background-position: 40% 40%;
+		background-size:cover;
+}
+#loginPage_backgroundVid{
+	position: fixed;
+	margin-left: -200%;
+	width: 0%;
+	height: 0%;
+	 z-index: -100;
+	background-size: cover;
+}
+#loginPage_bantterLogo{
+	position:fixed;
+	top: -4%;
+	right: 13%;
+	width: 70%;
+	height: 22%;
+}
+#loginPage_fbLogin{
+	position:fixed;
+	top: 90%;
+	width:60%;
+	left:20%;
+	opacity:0.7;
+	border-radius: 10px;
+}
+}

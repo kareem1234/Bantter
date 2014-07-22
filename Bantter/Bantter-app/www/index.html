@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="format-detection" content="telephone=no" />
+        <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+        <link rel="stylesheet" type="text/css" href="libs/bootstrap.min.css" />
+        <link rel="stylesheet" type="text/css" href="css/index.css" />
+        <title>Bantter</title>
+    </head>
+    <body>
+        <div id ="loadingPage" class="container-fluid notActive">
+            <div id='loadingPage_statusDiv'>
+                Loading ...
+            </div>
+        </div>
+        <div id="loginPage" class="notActive">
+            <video autoplay loop id='loginPage_backgroundVid' class ="notActive">
+                    <source src="https://s3-us-west-2.amazonaws.com/www.bantter.com/backgroundVideo.mp4" type="video/mp4">
+            </video>
+            <img  id="loginPage_bantterLogo"src= "./img/bantter2.png"/>
+            <p id="loginPage_slogan"> Record your selfie. Watch selfies. Have fun </p>
+            <button type="button" id="loginPage_fbLogin"class="btn btn-lg btn-primary">Log in with Facebook</button>
+        </div>
+        <div id ="mainPage" class="">
+            <div  class=" container-xs-height">
+                <div id="mainPage_menu" class =" height1 row row-xs-height">
+                     <div class="col-xs-9 col-xs-height">
+                        <img  id="mainPage_menu_logo"src= "./img/bantter2.png"/>
+                     </div>
+                     <div class="col-xs-3 col-xs-height col-top">
+                        <img  id="mainPage_menu_vidIcon"src= "./img/vidIcon.png"/>
+                     </div>
+                </div>
+                <div id ="mainPage_tabs"class ="row row-xs-height">
+                    <div class="col-xs-4 col-xs-height col-top menuTab">
+                        <button type="button" id="mainPage_menu_inbox"class="btn  btn-primary">
+                            <img class="icon"src="./img/inboxIcon.png"/>
+                        </button>
+                    </div>
+                    <div class="col-xs-4 col-xs-height menuTab mcol-top">
+                        <button type="button" id="mainPage_menu_selfies"class="btn btn-primary">
+                            <img class="icon"src="./img/friendsIcon.jpg"/>                            
+                        </button>
+                    </div>
+                    <div class="col-xs-4 col-xs-height menuTab col-top">
+                        <button type="button" id="mainPage_menu_likes"class="btn  btn-primary">
+                            <img class="icon"src="./img/likesIcon.png"/>
+                        </button>
+                    </div>
+                </div>
+                <div  id="mainPage_selfies"class =" notActive row row-xs-height">
+                    <div class ="mainPage_selfies_contentPane row row-xs-height">
+                        <video  autoplay id='mainPage_selfies_selfieVid' >
+                            <source src="https://s3.amazonaws.com/Bantter-userUploads/035203046-young-happy-couple-taking-self+(1).mp4" type="video/mp4">
+                        </video>
+                    </div>
+                    <div class ="mainPage_selfies_contentPane row row-xs-height">
+                        <div id="mainPage_selfies_selfieInfo"class ="row row-xs-height">
+                            <div id="mainPage_selfies_name"class="col-xs-6 col-xs-height col-top">Ashley 19</div>
+                            <div id="mainPage_selfies_city"class="col-xs-6 col-xs-height col-top">Ottawa</div>
+                        </div>
+                        <div class ="row row-xs-height">
+                            <div class="col-xs-6 col-xs-height col-top">
+                                <img id="mainPage_selfies_thumbsDown"src="./img/thumbsDown.png"/>
+                            </div>
+                            <div class="col-xs-6 col-xs-height col-top">
+                                <img id="mainPage_selfies_thumbsUp" src="./img/thumbsUp.png"/>
+                            </div>
+                        </div>
+                    </div>                                      
+                </div>
+                <div id="mainPage_likes" class =" row row-xs-height">
+                    <div id="mainPage_likes_controlCont" class ="notActive row row-xs-height">
+                        <button type="button" id="mainPage_likes_controlBut"class="btn  btn-primary">
+                    </div>
+                    <div id="mainPage_likes_people" class ="row row-xs-height">
+                        <div class ="likesRow row row-xs-height">
+                            <div class="col-xs-3 col-xs-height col-top">
+                                <img class="mainPage_likes_profilePic"src="http://graph.facebook.com/67563683055/picture?type=square"/>
+                            </div>
+                            <div class="col-xs-9 col-xs-height col-top">
+                                Jhon S.
+                            </div>
+                        </div>
+                    </div>
+                    <div id="mainPage_likes_menu" class="row row-xs-height">
+                        <div class="col-xs-6 col-xs-height col-top">
+                            People I like
+                        </div>
+                        <div class="col-xs-2 col-xs-height col-top">
+                            View
+                        </div>
+                        <div class="col-xs-2 col-xs-height col-top">
+                            Message
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+    <!--
+    <script type="text/javascript" src="js/cordova.js"></script>
+-->
+    <script type ="text/javascript" src="libs/jquery-2.1.1.min.js"></script>
+    <script type ="text/javascript" src="libs/bootstrap.min.js"></script>
+</html>
