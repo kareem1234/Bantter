@@ -10,7 +10,11 @@ html, body {
 }
 .likesRow{
 	padding-top: 5%;
+	padding-bottom:5%;
 	font-size: 150%;
+}
+.selectedLikesRow{
+	background-color:rgb(192, 218, 255);
 }
 .row{
 	margin-left: 0px;
@@ -199,6 +203,7 @@ loginPage css styles
 	overflow-y:scroll;
 }
 #mainPage_likes_menu{
+	font-family: 'Comfortaa', cursive;
 	height:17%;
 	padding-top:15%;
 	font-size:large;

@@ -1,8 +1,9 @@
-function View(EventEmitter){
+–function View(EventEmitter){
 	var E = EventEmitter;
 	var that = this;
 	var menuSet = false;
 	var likesSet = false;
+	var prevSelectedInbox = undefined;
 	this.currentView ="";
 	this.setLoadingView = function(){
 		$("#loginPage").addClass("notActive");
@@ -76,6 +77,20 @@ function View(EventEmitter){
 		$("#mainPage_likes").removeClass("notActive");
 		$("#mainPage_likes_controlCont").addClass("notActive");
 		$("#mainPage_selfies").addClass("notActive");
+		$("#mainPage_likes_menuTitle").text("My Inbox");
+		$(".likesRow").bind("tap",function(){
+			if(prevSelectedInbox)
+				prevSelectedInbox.removeClass("selectedLikesRow");
+			prevSelectedInbox = $(this);
+			prevSelectedInbox.addClass("selectedLikesRow");
+			//if viewable set text to view else
+			// set disable icon
+			var actionBut = $("#mainPage_likes_menuAction2");
+			actionBut.unbind("tap").bind("tap",function(){
+				E.EMIT("inboxView_reply",prevSelectedInbox.index());
+			});
+		
+		});
 
 	}
 	this.setMyLikesView = function(){
