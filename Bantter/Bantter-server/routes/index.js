@@ -86,6 +86,20 @@ exports.findWhoLikedMe= function(req, res){
 
 	});
 }
+exports.findInboxUsers = function(req,res){
+	var cols = db.getCollections(req.query.Age,req.query.Gender);
+	var callback = function(docs){
+		res.json(docs);
+	};
+	checkPermision(req.query.UserId,req.query.FbId,function(permission){
+		if(permission){
+			db.findInboxUsers(cols.col1,cols.col2,req.query.FbId,callback,errCallback(res));
+		}else{
+			var err = errCallback(res);
+			err("invalid access");
+		}
+	})
+}
 exports.findWhoILike = function(req, res){
 	var cols = db.getCollections(req.query.Age,req.query.Gender);
 	var callback = function(docs){

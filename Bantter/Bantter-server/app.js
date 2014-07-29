@@ -3,7 +3,7 @@
  * Module dependencies.
  */
  var cluster = require('cluster');
- var numCPUs = require('os').cpus().length;
+ var numCPUs = require('os').cpus().length-1;
  if (cluster.isMaster) {
   // Fork workers.
   for (var i = 0; i < numCPUs; i++) {
@@ -41,6 +41,7 @@ app.get('/findWhoeILike',routes.findWhoeILike);
 app.get('/getVideoRefs',routes.getVideoRefs);
 app.get("/getInbox",routes.getInbox);
 app.get("/findUsers",routes.findUsers);
+app.get("/findInboxUsers",routes.findInboxUsers);
 
 // post urls
 app.post('/insertUser',routes.insertUser);

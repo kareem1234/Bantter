@@ -145,6 +145,42 @@ exports.findWhoILike = function(col1,col2,fbId,callback,errcallback){
 				},retunFunc);
 	});
 }
+exports.findInboxUsers = function(col1,col2,toId,callback,errcallback){
+	vidRefs.find({to: toId}).toArray(function(err,refArray){
+		for(var i = 0; i< refArray.length; i++)
+			refArray[i] = refArray[i].FbId;
+		var count = 0;
+		var errCount = 0;
+		var results = new Array();
+		var returnFunc = function(err,users){
+			if(err){
+				errCount++;
+				if(errCount == 2)
+					process.nextTick(function(){
+						errcallback();
+					});
+				return;
+			}else{
+				results = results.concat(users);
+				count++;
+				if(count == 2 || count == 1 && errCount =1)
+					process.nextTick(function(){
+						callback(results);
+					});
+			}
+		};
+		if(col1){
+			db.col1.find({
+				FbId: { $in : refArray}
+			},returnFunc);
+		}
+		if(col2){
+			db.col1.find({
+				FbId: { $in : refArray}
+			},returnFunc);
+		}
+	});
+}
 exports.findWhoLikedMe = function(col1,col2,FbId,callback,errcallback){
 	likes.find({to:FbId}).toArray(function(err,likesArray){
 		if(err){
@@ -153,13 +189,13 @@ exports.findWhoLikedMe = function(col1,col2,FbId,callback,errcallback){
 				});
 				return;
 			}
-	var tempArr = new Array();
-	var results = new Array();
-	var count = 0;
-	var max = (col2 === undefined) ? 1 : 2 ; 
+		var tempArr = new Array();
+		var results = new Array();
+		var count = 0;
+		var max = (col2 === undefined) ? 1 : 2 ; 
 		for(var i =0; i< likesArray.length; i++)
 			tempArr.push(likesArray[i].from);
-	var retunFunc = function(err, users){
+		var returnFunc = function(err, users){
 			if(err){
 				process.nextTick(function(){
 					errcallback(err);
@@ -173,14 +209,15 @@ exports.findWhoLikedMe = function(col1,col2,FbId,callback,errcallback){
 						});
 				}
 			};
-			if(col1)
-				db.col1.find({
-					FbId: { $in : tempArr}
-				},retunFunc});
-			if(col2)
-				db.col1.find({
-					FbId: { $in : tempArr}
-				},retunFunc);
+		if(col1)
+			db.col1.find({
+				FbId: { $in : tempArr}
+			},returnFunc);
+		if(col2)
+			db.col1.find({
+				FbId: { $in : tempArr}
+			},returnFunc);
+	});
 
 }
 // function for initializing database connection

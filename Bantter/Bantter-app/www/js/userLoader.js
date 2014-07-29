@@ -1,4 +1,4 @@
-function MediaLoader(eventEmitter,request){
+	function MediaLoader(eventEmitter,request){
 	var E = eventEmitter;
 	var R = request;
 	var usLoader = new UserStreamLoader(E,R);
@@ -8,13 +8,12 @@ function MediaLoader(eventEmitter,request){
 	this.likers = undefined;
 	var mode;
 	var maxBuff = 10;
+	var likesBuff = 0;
 	var inboxRefs;
 	var inboxRefHash = {};
 	var inboxViewedHash = {};
 	var minBuff = 2;
 	var readyStatus = false;
-	// reference Count variables
-	var likersCount, myLikesCount, userStreamCount;
 
 	// loads all user arrays
 	// and any other cached data
@@ -41,7 +40,10 @@ function MediaLoader(eventEmitter,request){
 		return mode;
 	}
 	this.markedViewed = function(vidRef){
-		inboxViewedHash[vidRef.url] = true;
+		inboxViewedHash[vidRef.Url] = true;
+	}
+	this.checkViewable = function(url){
+		return inboxViewedHash[url];
 	}
 	// get mylikes likers and finduser stream
 	this.getAllUsers = function(){
@@ -58,17 +60,11 @@ function MediaLoader(eventEmitter,request){
 	// return the next user in que
 	// depending on the mode
 	this.getNext = function(){
-		if(mode === 'findUsers'){
-			return userStream.shift();
-		}else if (mode === 'findWhoILike'){
-			myLikesCount--;
-			return that.myLikes.shift();
-		}else if (mode ==='findWhoLikedMe'){
-			likersCount--;
-			return that.likers.shift();
-		}
-		if(userStream.length < minBuff)
-			that.getUsers();
+		checkStatus();
+		return userStream.shift();
+	}
+	this.callBuffer = function(){
+		buffer();
 	}
 	function hashInboxRef(ref){
 		inboxRefHash[ref.FbId] = ref;
@@ -86,6 +82,7 @@ function MediaLoader(eventEmitter,request){
 		mode = modeType;
 		checkStatus();
 		buffer();
+		likesBuff = 0;
 	}
 	// attach videoReference array to  the matching user object
 	// then call checkStatus() 
@@ -100,12 +97,14 @@ function MediaLoader(eventEmitter,request){
 			for(var i = 0; i< that.myLikes.length; i++){
 				if(that.myLikes[i].FbId === refs[0].FbId){
 					that.myLikes[i].refs = refs;
+					E.EMIT("myLikes_refLoaded",i);
 				}
 			}	
 		}else if(type === "findWhoLikedMe"){
 			for(var i = 0; i< that.likers.length; i++){
 				if(that.likers[i].FbId === refs[0].FbId){
 					that.likers[i].refs = refs;
+					E.EMIT("likers_refLoaded",i);
 				}
 			}			
 		}
@@ -202,13 +201,9 @@ function MediaLoader(eventEmitter,request){
 	// buffer the MyLikes
 	// by retrieving associated video refs  
 	function bufferMyLikes(){
-		var max;
-		if(mode === 'findWhoILike')
-				max = maxBuff;
-		else 
-			max= minBuff;
-		for(var i = 0; i< userStream.length; i++){
-			if(i > max )
+		likesBuff = likesBuff+10;
+		for(var i = 0; i< that.myLikes.length; i++){
+			if(i > likesBuff )
 				return;
 			if(that.myLikes[i].refs === undefined)
 				R.request('getVideoRefs',user.FbId);
@@ -217,13 +212,9 @@ function MediaLoader(eventEmitter,request){
 	// buffer the likers
 	// by retrieving associated video refs
 	function bufferLikers(){
-		var max;
-		if(mode === 'findWhoLikedMe')
-				max = maxBuff;
-		else 
-			max= minBuff;
-		for(var i = 0; i< userStream.length; i++){
-			if(i > max )
+		likesBuff = likesBuff+10;
+		for(var i = 0; i< that.likers.length; i++){
+			if(i > likesBuff )
 				return;
 			if(that.likers[i].refs === undefined)
 				R.request('getVideoRefs',user.FbId);

@@ -123,9 +123,21 @@ function Controller(){
         that.event.LISTEN("failed/getVideoRefs",failureCallback);
         that.event.LISTEN("failed/findUsers",failureCallback);
         that.event.LISTEN("failed/getInbox",failureCallback);
+        that.event.LISTEN("failed/findInboxUsers",failureCallback);
     }
     function initViewCallbacks(){
-        
+        that.event.LISTEN("myLikesView_view",function(){
+
+        });
+        that.event.LISTEN("myLikesView_message",function(){
+
+        });
+        that.event.LISTEN("likersView_view",function(){
+
+        });
+        that.event.LISTEN("likersView_message",function(){
+
+        });
     }
     document.addEventListener("deviceready",that.setup,false);
 

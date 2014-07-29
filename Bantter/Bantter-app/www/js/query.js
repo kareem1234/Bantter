@@ -1,6 +1,4 @@
 
-
-
 function Request(EventEmitter){
 	var domain;
 	var me;
@@ -59,6 +57,9 @@ function Request(EventEmitter){
 			case: 'getInbox'
 				   makeRequest("GET","/"+string,me);
 				   break;
+			case: "findInboxUsers"
+					makeRequest("GET","/"+string,me);
+					break;
 		}
 	}
 
