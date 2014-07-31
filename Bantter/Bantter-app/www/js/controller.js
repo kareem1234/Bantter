@@ -3,64 +3,74 @@
 // document.addEventListener('deviceready', this.onDeviceReady, false);
 
 function Controller(){
-    var firstTime;
     var that = this;
-    var mediaStatus = false;
-    var vidOptions ={
-        id: undefined,
-        caption: undefined
-    };
-    this.view = new View();
+    var waitingFor = undefined;
+    var currentUser = undefined;
     this.load = function(){
         that.view.setLoadingView();
-        FB.init({ appId: "1409430495955338", nativeInterface: CDV.FB, useCachedDialogs: false });
         that.likes.load();
         that.mediaLoader.load();
         that.mediaCapture.load();
-        firstTime = that.user.load();
-        if(firstTime){
-            that.view.setLoginView(function(){
-                that.user.login();
-            });
-        }else{
-            that.view.setLoadingView();
-        }
+        var userStatus = that.user.load();
+        onUserLoad(userStatus);
+
      }
-    
+    function onUserLoad(userStatus){
+        if(userStatus)
+            user.login();
+        else{
+            if(that.mediaLoader.readyStatus)
+                that.view.setStreamView(that.mediaLoader.getNext());
+            else
+                that.view.setLoadingView();
+        }
+    }
     // call all setup methods
     this.setup = function(){
         that.initCallbacks();
         that.load();
+        that.view.init();
         that.setSaveInterval();
 
         ///
     }
     this.initCallbacks = function(){
-
+        initModelCallbacks();
+        initQueryCallbacks();
+        initFailCallbacks();
+        initViewCallbacks();
     }
     this.setSaveInterval = function(){
-
+        setTimeout(function(){
+            that.likes.save();
+            that.user.save();
+            that.mediaLoader.save();
+            that.mediaCapture.save();
+        },1000*10);
     }
     function initModelCallbacks(){
         that.event.LISTEN("signedUp",function(){
             that.user.getFbData();
             that.view.setLoadingView();
-            that.view.setLoadingText("retrieving your facebook data");
+            //that.view.displayInfo('Looking for people in your area');
         });
         that.event.LISTEN("deniedSignUp",function(){
-            that.view.setLoginText("We do not share your data with any third parties");
+            that.view.displayInfo("We do not share your data with third parties");
         });
         that.event.LISTEN("loadedFbData",function(){
-            var _user = user.returnUser();
-            that.request.setUser(_user);
+            var usr = user.returnUser();
+            that.request.setUser(usr);
             that.mediaLoader.start();
-            that.view.setLoadingText("finding people in your area");
+            that.view.displayInfo("finding people in your area");
         });
         that.event.LISTEN("media_ready",function(){
-            if(that.view.currentView ==="loadingView")
-                that.view.setStreamView(that.mediaLoader.getNext());
+            if(that.view.currentView ==="loadingView"){
+                that.mediaLoader.setMode("findWhoILike");
+                currentUser = that.mediaLoader.getNext();
+                that.view.setStreamView(currentUser);
+            }
             else if(that.view.currentView ==='streamView')
-                that.view.streamViewDisplayNext();
+              streamViewRemoveLoading();
         });
         that.event.LISTEN("media_notReady",function(){
             if(that.view.currentView==="streamView")
@@ -73,13 +83,13 @@ function Controller(){
             that.mediaLoader.onStreamReady();
         });
         that.event.LISTEN("mediaCapture_captureError",function(){
-            that.view.displayInfo();
+            that.view.displayInfo("something whent wrong recording video");
         });
         that.event.LISTEN("mediaCapture_cap",function(){
             that.mediaCapture.getPolicy();
         });
         that.event.LISTEN("mediaCapture_uploadSuccess",function(){
-            that.view.displayInfo("video uploaded");
+            that.view.displayInfo("video uploaded!");
         });
         that.event.LISTEN("mediaCapture_uploadError",function(){
             that.view.displayInfo("something whent wrong, video upload failed");
@@ -111,7 +121,7 @@ function Controller(){
             that.mediaLoader.onInboxLoad(data);
         });
     }
-    function initFailCallback(){
+   function initFailCallbacks(){
         var failureCallback = function(err){
             console.log(err);
         }
@@ -126,17 +136,107 @@ function Controller(){
         that.event.LISTEN("failed/findInboxUsers",failureCallback);
     }
     function initViewCallbacks(){
-        that.event.LISTEN("myLikesView_view",function(){
-
+        that.event.LISTEN("myLikesView_view",function(index){
+            that.view.setUserViewPopUp(that.mediaLoader.myLikes[index]);
         });
-        that.event.LISTEN("myLikesView_message",function(){
-
+        that.event.LISTEN("myLikesView_message",function(index){
+            that.mediaCapture.getVideo(that.mediaLoader.myLikes[index].Id);
         });
-        that.event.LISTEN("likersView_view",function(){
-
+        that.event.LISTEN("likersView_view",function(index){
+            that.view.setUserViewPopUp(that.mediaLoader.likers[index]);
         });
-        that.event.LISTEN("likersView_message",function(){
+        that.event.LISTEN("likersView_message",function(index){
+            that.mediaCapture.getVideo(that.mediaLoader.likers[index].Id);
+        });
+        that.event.LISTEN("inboxView_view",function(index){
+            that.view.setUserViewPopUp(that.mediaLoader.inboxUsers[index]);
+        });
+        that.event.LISTEN("inboxView_reply",function(index){
+             that.mediaCapture.getVideo(that.mediaLoader.inboxUsers[index].Id);           
+        });
+        that.event.LISTEN("viewMenu_likes_taped",function(){
+            that.waitingFor = undefined;
+            if(that.view.currentView ==="myLikesView" || that.view.currentView === "likersView")
+                    return;
+            else{
+                if(that.mediaLoader.myLikes)
+                    that.view.setMyLikesView();
+                else{
+                    that.waitingFor = "myLikes"
+                    that.view.displayPeopleLoading();
+                }
+            }
+        });
+        that.event.LISTEN("viewMenu_selfies_taped",function(){
+            that.waitingFor = undefined;
+            that.mediaLoader.setMode("findUsers");
+            if(that.view.currentView ==="streamView")
+                return;
+            else{
+                that.view.setStreamView(currentUser);
+                if(!that.mediaLoader.readyStatus)
+                    that.view.streamViewDisplayLoading();
+            }
+        });
+        that.event.LISTEN("viewMenu_inbox_taped",function(){
+            that.waitingFor = undefined;
+            if(that.view.currentView ==="inboxView")
+                return;
+            else{
+                if(that.mediaLoader.inboxUsers)
+                    that.view.setInboxView(that.mediaLoader.inboxUsers);
+                else{
+                    that.view.displayPeopleLoading();
+                    that.waitingFor = 'inboxUsers';
+                }
+            }
+        });
+        that.event.LISTEN("view_likesControll_taped",function(){
+            that.waitingFor = undefined;
+            if(that.view.currentView ==="myLikesView"){
+                if(that.mediaLoader.myLikes)
+                    that.view.setMyLikesView();
+                else{
+                    that.waitingFor="myLikes";
+                    that.view.displayPeopleLoading();
+                }
 
+            }else if(that.view.currentView ==="likersView"){
+                if(that.mediaLoader.likers)
+                    that.view.setLikersView();
+                else{
+                    that.waitingFor="likers";
+                    that.view.displayPeopleLoading();
+                }
+            }
+        });
+        that.event.LISTEN("viewMenu_vidIcon_taped",function(){
+            that.mediaCapture.getVideo();
+        });
+        that.event.LISTEN("streamView_thumbsUp_taped",function(){
+            var nextUser = that.mediaLoader.getNext();
+            that.mediaLoader.streamViewDisplayNext(nextUser);
+            that.likes.addLike(currentUser.FbId);
+            currentUser = nextUser;
+        });
+        that.event.LISTEN("streamView_thumbsDown_taped",function(){
+            currentUser = that.mediaLoader.getNext();
+            that.mediaLoader.streamViewDisplayNext(currentUser);
+        });
+        that.event.LISTEN("likesView_scrolled",function(){
+            that.mediaLoader.callBuffer();
+        });
+        that.event.LISTEN("media_myLikes_loaded",function(){
+            if(that.waitingFor === "myLikes"){
+                that.waitingFor = undefined;
+                that.view.setMyLikesView();
+            }
+        });
+        that.event.LISTEN("media_likers_loaded",function(){
+            if(that.waitingFor === "likers"){
+                that.waitingFor = undefined;
+                that.view.setLikersView();
+            }
         });
     }
     document.addEventListener("deviceready",that.setup,false);

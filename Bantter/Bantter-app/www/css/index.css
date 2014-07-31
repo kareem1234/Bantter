@@ -39,7 +39,7 @@ html, body {
 	font-size: 150%;
 }
 .disabled{
-	opacity:0.4;
+	opacity:0.3;
 }
 .selectedLikesRow{
 	background-color:rgb(192, 218, 255);
@@ -47,6 +47,10 @@ html, body {
 .row{
 	margin-left: 0px;
 	margin-right:0px;
+}
+#noIcon{
+	width:100%;
+	height:100%;
 }
 .icon{
 	width:30%;
@@ -70,7 +74,8 @@ Loading page css styles
   */
 #loadingPage{
 	background-image: url(../img/bantterIconPink.png);
-	background-size: 100% 100%;
+	background-size: cover;
+	background-position:45% 40%;
     width: 100%;
     height: 100%;
 }
@@ -113,14 +118,6 @@ loginPage css styles
 	height: 10%;
 	color:#00CCFF;
 	font-size: x-large;
-}
-#loginPage_backgroundVid{
-	position: fixed;
-	margin-left: -115%;
-	width: 317%;
-	height: 100%;
-	 z-index: -100;
-	background-size: cover;
 }
 #loginPage_fbLogin{
 	position:fixed;
@@ -214,7 +211,7 @@ loginPage css styles
 	height:50%;
 	width:50%;	
 }
-#mainPage_likes{
+#mainPage_people{
 	height:81%;
 }
 #mainPage_likes_controlBut{
@@ -230,7 +227,7 @@ loginPage css styles
 	height:75%;
 	overflow-y:scroll;
 }
-#mainPage_likes_menu{
+#mainPage_people_menu{
 	font-family: 'Comfortaa', cursive;
 	height:17%;
 	padding-top:15%;
@@ -238,9 +235,11 @@ loginPage css styles
 	color: rgb(13, 82, 105);
 }
 .mainPage_likes_profilePic{
-	
+	border-radius: 10px;
 }
-
+.starDiv{
+	background-color: red;
+}
 
 /*   Code for css loader animation */
 .spinner {
@@ -250,7 +249,24 @@ loginPage css styles
   position: relative;
   margin-left: 107px;
 }
-
+.spinner2{
+width: 45px;
+height: 45px;
+position: relative;
+margin-left: 108px;
+margin-top: 177%;
+}
+.spinner3 {
+width: 70px;
+height: 70px;
+position: relative;
+margin-left: 123px;
+margin-top: 100px;
+}
+.newInboxIcon{
+	width:100%;
+	height:100%;
+}
 .double-bounce1, .double-bounce2 {
   width: 100%;
   height: 100%;
@@ -285,4 +301,4 @@ loginPage css styles
     -webkit-transform: scale(1.0);
   }
 }	
-/* */
+

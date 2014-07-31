@@ -12,10 +12,11 @@
         <title>Bantter</title>
     </head>
     <body class ="">
-        <div id ="loadingPage" class="container-fluid notActive">
-            <div id='loadingPage_statusDiv'>
-                Loading ...
-            </div>
+        <div id ="loadingPage" class="notActive container-fluid ">
+            <div class=" spinner2">
+                <div class="double-bounce1"></div>
+                <div class="double-bounce2"></div>
+            </div>             
         </div>
         <div class="modal" id="videoPopUpModal">
             <div class="modal-dialog">
@@ -103,12 +104,16 @@
                         </div>
                     </div>                                      
                 </div>
-                <div id="mainPage_likes" class =" row row-xs-height">
+                <div id="mainPage_people" class =" row row-xs-height">
                     <div id="mainPage_likes_controlCont" class ="notActive row row-xs-height">
                         <button type="button" id="mainPage_likes_controlBut"class="btn  btn-primary">
                     </div>
-                    <div id="mainPage_likes_myLikes" class ="notActive mainPage_likesDiv row row-xs-height">
-                        <div class ="likesRow row row-xs-height">
+                    <div class=" spinner3">
+                        <div class="double-bounce1"></div>
+                         <div class="double-bounce2"></div>
+                    </div>                     
+                    <div id="mainPage_people_myLikes" class =" notActive mainPage_likesDiv row row-xs-height">
+                        <div class ="notActive likesRow row row-xs-height">
                             <div class="col-xs-3 col-xs-height col-top">
                                 <img class="mainPage_likes_profilePic"src="http://graph.facebook.com/67563683055/picture?type=square"/>
                             </div>
@@ -117,7 +122,7 @@
                             </div>
                         </div>
                     </div>
-                    <div id="mainPage_likes_likers" class ="notActive mainPage_likesDiv row row-xs-height">
+                    <div id="mainPage_people_likers" class ="notActive mainPage_likesDiv row row-xs-height">
                         <div class ="likesRow row row-xs-height">
                             <div class="col-xs-3 col-xs-height col-top">
                                 <img class="mainPage_likes_profilePic"src="http://graph.facebook.com/67563683055/picture?type=square"/>
@@ -127,22 +132,25 @@
                             </div>
                         </div>
                     </div> 
-                    <div id="mainPage_likes_inbox" class =" mainPage_likesDiv row row-xs-height">
+                    <div id="mainPage_people_inbox" class ="notActive mainPage_likesDiv row row-xs-height">
                         <div class ="likesRow row row-xs-height">
                             <div class="col-xs-3 col-xs-height col-top">
                                 <img class="mainPage_likes_profilePic"src="http://graph.facebook.com/67563683055/picture?type=square"/>
                             </div>
-                            <div class="col-xs-9 col-xs-height col-top">
+                            <div class="col-xs-7 col-xs-height col-top">
                                 Jhon F.
+                            </div>
+                            <div class="col-xs-2 col-xs-height col-top">
+                                <img class="newInboxIcon" src="./img/starIcon.jpg">
                             </div>
                         </div>
                     </div>                      
-                    <div id="mainPage_likes_menu" class="row row-xs-height">
+                    <div id="mainPage_people_menu" class="notActive row row-xs-height">
                         <div id="mainPage_likes_menuTitle"class="col-xs-6 col-xs-height col-top">
                             People I like
                         </div>
                         <div id="mainPage_likes_menuAction1"class="col-xs-2 col-xs-height col-top">
-                            View
+                            <img id ="noIcon" src="./img/noIcon.jpg">
                         </div>
                         <div id="mainPage_likes_menuAction2"class="col-xs-2 col-xs-height col-top">
                             Message

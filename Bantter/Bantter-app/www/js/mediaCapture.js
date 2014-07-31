@@ -5,23 +5,36 @@ function MediaCapture(eventEmitter,request){
 	var toId = undefined;
 	var num = 0;
 	var mediaFile;
+	var outBoxHash = {};
 	var contentType;
 	var caption;
+	var recordedSelfie;
 	var maxLength = 10;
 	var vidRef = undefined;
 	this.save = function(){
 		window.localStorage.setItem("mediaCapture_num",JSON.stringify(num));
+		window.localStorage.setItem("mediaCapture_outBoxHash",JSON.stringify(outBoxHash));
 	}
 	this.load = function(){
-		var num = JSON.parse(window.loaclStorage.getItem("mediaCapture_num"));
+		num = JSON.parse(window.loaclStorage.getItem("mediaCapture_num"));
+		outBoxHash = JSON.parse(window.loaclStorage.getItem("mediaCapture_outBoxHash"));
+	}
+	this.haveIsent = function(id){
+		if(outBoxHash[id])
+			return true;
+		else 
+			return false;
 	}
 	var captureError = function(error){
 		console.log("video captureError" + error);
 		E.EMIT("mediaCapture_captureError");
 	}
 	this.getVideo= function(id){
-		if(id)
+		if(id){
 			toId = id;
+			outBoxHash[id] = true;
+		}else
+			recordedSelfie = true;
 		window.plugins.videocaptureplus.captureVideo(function(mediaFiles){
 			mediaFile = mediaFiles[0];
 			contentType = 'video/mp4';

@@ -3,7 +3,7 @@ function Likes(eventEmitter, Request){
 	var E = eventEmitter;
 	var R = Request;
 	var that = this;
-	var maxBuffer = 5;
+	var maxBuffer = 2;
 	var likes = new Array();
 	this.save = function(){
 
@@ -11,9 +11,9 @@ function Likes(eventEmitter, Request){
 	this.load = function(){
 
 	}
-	this.addLike = function(fromId, toId){
+	this.addLike = function(toId){
 		var like = {
-			from: fromId,
+			from: R.getUser().FbId;,
 			to: toId
 		};
 		likes.push(like);
