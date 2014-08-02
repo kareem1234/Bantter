@@ -57,6 +57,7 @@ app.post('/insertLike',routes.insertLike);
 app.post('/getPolicy',routes.getPolicy);
 app.post('/insertVidRef',awsRoutes.insertVidRef);
 
+// callback to start Server
 function startServer(){
   console.log("starting server...");
   http.createServer(app).listen(app.get('port'), function(){
@@ -64,6 +65,7 @@ function startServer(){
   });
 }
 
+// connect to database, then init awstranscoder, then start server
 db.connect(function(){
   awsRoutes.initTranscode(startServer);
 });
