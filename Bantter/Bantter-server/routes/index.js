@@ -1,5 +1,5 @@
 
-var db = require("./db");
+var db = require("../database/db.js");
 var crypto = require("crypto");
 var bucket = "";
 var awsKey = "";
@@ -137,7 +137,7 @@ exports.getInbox = function(req,res){
 		}
 	})
 }
-function returnSignedPolicy = function(vidRef, response){
+ returnSignedPolicy = function(vidRef, response){
 	fileName = vidRef.Url;
 	expiration = new Date(new Date().getTime() + 1000 * 60 * 5).toISOString();
 	  var policy =
@@ -158,7 +158,7 @@ function returnSignedPolicy = function(vidRef, response){
 exports.getPolicy = function(req,res){
 	returnSignedPolicy(req.body.VidRef,res);
 }
-function checkPermision = function(userId, fbId, callback){
+checkPermision = function(userId, fbId, callback){
 	db.getIdPair(userId,function(docs){
 		if(docs.length == 0)
 				callback(false);

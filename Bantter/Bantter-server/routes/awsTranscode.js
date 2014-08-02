@@ -2,7 +2,7 @@
 // on request create a job using randomly selected pipe / or alternate pipes
 // get event hanlder for on job complete and insertVidref when job is complete
 var AWS = require("aws-sdk");
-var db = require("./db");
+var db = require("../database/db.js");
 AWS.config.loadFromPath("./config.json");
 var elastictranscoder = new AWS.ElasticTranscoder();
 var pipes = new Array();
@@ -12,12 +12,12 @@ var preset;
 function getPipes(callback){
 	var params = {
  		Ascending: 'true',
-  		PageToken: ''
 	};
 	elastictranscoder.listPipelines(params, function(err, data) {
  		 if (err) console.log(err); // an error occurred
   		 else{
   		 		for(var i =0;i<data.Pipelines.length; i++){
+            console.log("transcoder pipe found");
   		 			pipes.push(data.Pipelines[i].Id);
   		 		}
   		 		callback();
@@ -27,7 +27,6 @@ function getPipes(callback){
 function getPresets(callback){
   var params = {
     Ascending: 'true',
-    PageToken: ''
   };
   elastictranscoder.listPresets(params, function(err,data){
       if(err)
@@ -36,6 +35,7 @@ function getPresets(callback){
           for(var i = 0; i<data.Presets.length;i++){
               if(data.Presets[i].Type ==="Custom"){
                   preset = data.Presets[i].Id;
+                  console.log("transcoder preset loaded");
                   callback();
                 }
           }
@@ -69,7 +69,7 @@ var params = {
       
   });
 }
-exports.init = function(callback){
+exports.initTranscode = function(callback){
   var count = 0;
   var func  = function(){
     count++;
@@ -79,7 +79,7 @@ exports.init = function(callback){
   getPresets(func);
   getPipes(func); 
 }
-exports.insertVidref = function(req,res){
+exports.insertVidRef = function(req,res){
   var ref = req.body.VidRef;
   var user = req.body;
   var collections = db.getCollections(user.Age,user.Gender);

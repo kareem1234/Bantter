@@ -2,12 +2,9 @@
 Connection config variables and requires
 */
 var mongo  = require('mongodb');
-var Grid = require('gridfs-stream');
-var mongoUri = null;
+var dbConfig = require("../dbConfig.json");
+var mongoUri = "mongodb://"+dbConfig.user+":"+dbConfig.pwd+"@ds053419.mongolab.com:53419/bantterdb";
 var db;
-var gfs;
-var host = "127.0.0.1";
-var port = mongo.Connection.DEFAULT_PORT;
 /*
 	collection names  by gender and age group
 */
@@ -76,13 +73,13 @@ exports.getIdPair = function(userId, callback,errcallback){
 }
 exports.findUsers = function(Collection,User,Range,Time,callback,errcallback){
 	var options = {
-			{$and: [{
+			$and: [{
 				$and: [{Lat: {$lte: User.Lat + Range}}, {lat: {$gte: User.Lat-Range}}]
 			}, {
 				$and: [{Lgt: {$lte: User.Lgt + Range}}, {lgt: {$gte: User.Lgt-Range}}]
 			}, {
 				Timestampe: {$gte: Time}
-			}]}
+			}]
 	};
 	Collection.find(options).limit(25).toArray(function(err,docs){
 		if(err) errcallback(err);
@@ -138,7 +135,7 @@ exports.findWhoILike = function(col1,col2,fbId,callback,errcallback){
 			if(col1)
 				db.col1.find({
 					FbId: { $in : tempArr}
-				},retunFunc});
+				},retunFunc);
 			if(col2)
 				db.col1.find({
 					FbId: { $in : tempArr}
@@ -226,16 +223,9 @@ exports.connect = function (callback){
 		console.log("database alrdy init");
 		process.nextTick(callback);
 	}
-	else if(process.env.NODE_ENV === "production"){
+	else{
 		mongo.Db.connect(mongoUri,function(err, myDb){
 			db = myDb;
-			gfs = Grid(db, mongo);
-			console.log("connected to the database");
-			process.nextTick(callback);
-		});
-	}else{
-		db = new mongo.Db('Bantter',new mongo.Server(host,port),{safe:true});
-		db.open(function(err){
 			console.log("connected to the database");
 			process.nextTick(callback);
 		});
