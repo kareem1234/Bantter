@@ -13,8 +13,8 @@ function Likes(eventEmitter, Request){
 	}
 	this.addLike = function(toId){
 		var like = {
-			from: R.getUser().FbId;,
-			to: toId
+			From: R.getUser().FbId;,
+			To: toId
 		};
 		likes.push(like);
 		if(likes.length >= maxBuffer){
