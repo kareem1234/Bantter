@@ -6,11 +6,9 @@ var dbConfig = require("../dbConfig.json");
 var mongoUri = "mongodb://"+dbConfig.user+":"+dbConfig.pwd+"@ds053419.mongolab.com:53419/bantterdb";
 var db;
 /*
-	collection names  by gender and age group
+	user collection
 */
-var teenMale,  teenFemale;
-var youngMale, youngFemale;
-var oldMale,   oldFemale;
+var people;
 /*
 miscallaneous collections
 */
@@ -28,194 +26,154 @@ var maxReturn = 10;
 */
 
 // attach database collection to variables
-exports.initCollections = function (){
-	teenMale 	= db.collection('tMale');
-	teenFemale 	= db.collection('tFemale');
-	youngMale   = db.collection('yMale');
-	youngFemale	= db.collection('yFemale');
-	oldMale     = db.collection('oMale');
-	oldFemale	= db.collection('oFemale');
-
+initCollections = function (){
+	people 		= db.collection("people");
 	vidRefs		= db.collection('vidRefs');
 	likes 		= db.collection('likes');
 	idPairs		= db.collection("idPairs");
 
+	console.log("database collections initialized");
+
 }
-exports.insertUser = function (collection,user,callback, errcallback){
-	collection.insert(user,function(err){
+// insertUser into specified collection
+exports.insertUser = function (user,callback, errcallback){
+	people.insert(user,function(err){
 		if(err) errcallback();
 		else callback();
 	});
 }
-exports.updateUser = function(collection,user,callback,errcallback){
-	collection.update({FbId:user.FbId},user,function(err,result){
+// updateUser with specified collection
+exports.updateUser = function(user,callback,errcallback){
+	people.update({FbId:user.FbId},user,function(err,result){
 		if(err) errcallback();
 		else callback();
 	})
 }
+// insert a like object into like collection
 exports.insertLike = function(like,callback,errcallback){
 	likes.insert(like,function(err){
 		if(err) errcallback();
 		else callback();
 	});
 }
+// insert a userId/fbId matching into idpairs collection
 exports.insertIdPair = function(fbId, userId,callback,errcallback){
 	idPairs.insert({FbId:fbId,UserId:userId},function(err){
 		if(err) errcallback(err);
 		else callback();
 	});
 }
+// find a userId/fbId matching from idpairs collection
 exports.getIdPair = function(userId, callback,errcallback){
 	idPairs.find({UserId: userId}).toArray(function(err,docs){
 		if(err)errcallback(err);
 		else callback(docs);
 	});
 }
-exports.findUsers = function(Collection,User,Range,Time,callback,errcallback){
-	var options = {
-			$and: [{
-				$and: [{Lat: {$lte: User.Lat + Range}}, {lat: {$gte: User.Lat-Range}}]
-			}, {
-				$and: [{Lgt: {$lte: User.Lgt + Range}}, {lgt: {$gte: User.Lgt-Range}}]
-			}, {
-				Timestampe: {$gte: Time}
-			}]
-	};
-	Collection.find(options).limit(25).toArray(function(err,docs){
-		if(err) errcallback(err);
-		else callback(docs);
-	})
+// find users from specified collection within a certain latitude and longitude range
+// limit to 500
+exports.findUsers = function(query,User,Range,Time,callback,errcallback){
+	console.log(Number(User.Lat) - Number(Range));
+	console.log(Number(User.Lat) + Number(Range));
+	var options={ Lat: {$lte: (Number(User.Lat) + Number(Range)),$gte: (Number(User.Lat) - Number(Range))},
+				  Lgt: {$lte: (Number(User.Lgt) + Number(Range)),$gte: (Number(User.Lgt) - Number(Range))},
+				  TimeStamp: {$gte: Number(Time) }
+				};
+	for(var attr in query){ options[attr] = query[attr];}
+	console.log(options);
+	people.find(options).limit(50).toArray(function(err,docs){
+		console.log(docs.length);
+		if(err){console.log(err); errcallback(err);}
+		else{
+			docs.sort(function(a,b){
+				var num1 = Math.abs(a.Lat-Number(User.Lat)) + Math.abs(a.Lgt-Number(User.Lgt));
+				var num2 = Math.abs(b.Lat-Number(User.Lat)) + Math.abs(b.Lgt-Number(User.Lgt));
+				return a-b;
+			});
+			callback(docs);
+		}
+	});
 }
+//  insert a videoRefence into collection
 exports.insertVidRef = function(vRef,callback,errcallback){
 	vidRefs.insert(vRef,function(err){
 		if(err)errcallback();
 		else callback();
 	});
 }
-exports.findVidRefs = function(fbId,callback,errcallback){
-	vidRefs.find({FbId: fbId, to:"all"}).toArray(function(err,refs){
+// find videoReferences//selfies belonging to specified facebook id
+exports.findVidRefs = function(FbId,callback,errcallback){
+	vidRefs.find({FbId: FbId, to:"all"}).toArray(function(err,refs){
 		if(err) errcallback();
 		else callback(refs);
 	});
 }
-exports.findInboxRef = function(fbId,callback,errcallback){
-	vidRefs.find({to: fbId}).toArray(function(err,docs){
+// find all videoReferences sent to a specific FbId
+exports.findInboxRefs = function(FbId,callback,errcallback){
+	vidRefs.find({to: FbId}).toArray(function(err,docs){
 		if(err) errcallback();
 		else callback(docs);
 	});
 }
-exports.findWhoILike = function(col1,col2,fbId,callback,errcallback){
-	likes.find({from: fbId}).toArray(function(err,likesArray){
+// return users who were liked by the specified fbid
+exports.findWhoILike = function(query,FbId,callback,errcallback){
+	likes.find({From: FbId}).toArray(function(err,likesArray){
 		if(err){
-				process.nextTick(function(){
-					errcallback(err);
-				});
-				return;
-			}
-	var tempArr = new Array();
-	var results = new Array();
-	var count = 0;
-	var max = (col2 === undefined) ? 1 : 2 ; 
+			errcallback(err);
+			return;
+		}
+		var tempArr = new Array();
 		for(var i =0; i< likesArray.length; i++)
-			tempArr.push(likesArray[i].from);
-	var retunFunc = function(err, users){
-			if(err){
-				process.nextTick(function(){
-					errcallback(err);
-				});
-				}else{
-					results = results.concat(users);
-					count++;
-					if(count === max)
-						process.nextTick(function(){
-							callback(results);
-						});
-				}
-			};
-			if(col1)
-				db.col1.find({
-					FbId: { $in : tempArr}
-				},retunFunc);
-			if(col2)
-				db.col1.find({
-					FbId: { $in : tempArr}
-				},retunFunc);
+			tempArr.push(likesArray[i].To);
+		var returnFunc = function(err, users){
+			if(err)
+				errcallback(err);
+			else
+				callback(results);
+		};
+		query.$and.push({FbId : { $in : tempArr}});
+		people.find(query).toArray(returnFunc);
 	});
 }
-exports.findInboxUsers = function(col1,col2,toId,callback,errcallback){
-	vidRefs.find({to: toId}).toArray(function(err,refArray){
+// return the users who sent messages to the specified fbid
+exports.findInboxUsers = function(query,FbId,callback,errcallback){
+	vidRefs.find({to: FbId}).toArray(function(err,refArray){
 		for(var i = 0; i< refArray.length; i++)
 			refArray[i] = refArray[i].FbId;
 		var count = 0;
 		var errCount = 0;
 		var results = new Array();
 		var returnFunc = function(err,users){
-			if(err){
-				errCount++;
-				if(errCount == 2)
-					process.nextTick(function(){
-						errcallback();
-					});
-				return;
-			}else{
-				results = results.concat(users);
-				count++;
-				if(count == 2 || count == 1 && errCount =1)
-					process.nextTick(function(){
-						callback(results);
-					});
-			}
+		if(err)
+			errcallback(err);
+		else
+			callback(users);
 		};
-		if(col1){
-			db.col1.find({
-				FbId: { $in : refArray}
-			},returnFunc);
-		}
-		if(col2){
-			db.col1.find({
-				FbId: { $in : refArray}
-			},returnFunc);
-		}
+		query.$and.push({FbId : { $in : tempArr}});
+		people.find(query).toArray(returnFunc);
+		
 	});
 }
-exports.findWhoLikedMe = function(col1,col2,FbId,callback,errcallback){
-	likes.find({to:FbId}).toArray(function(err,likesArray){
+// return users who liked the specified fbid
+exports.findWhoLikedMe = function(query,FbId,callback,errcallback){
+	likes.find({To: FbId}).toArray(function(err,likesArray){
 		if(err){
-				process.nextTick(function(){
-					errcallback(err);
-				});
-				return;
-			}
+			errcallback(err);
+			return;
+		}
 		var tempArr = new Array();
-		var results = new Array();
-		var count = 0;
-		var max = (col2 === undefined) ? 1 : 2 ; 
 		for(var i =0; i< likesArray.length; i++)
-			tempArr.push(likesArray[i].from);
+			tempArr.push(likesArray[i].From);
 		var returnFunc = function(err, users){
-			if(err){
-				process.nextTick(function(){
-					errcallback(err);
-				});
-				}else{
-					results = results.concat(users);
-					count++;
-					if(count === max)
-						process.nextTick(function(){
-							callback(results);
-						});
-				}
-			};
-		if(col1)
-			db.col1.find({
-				FbId: { $in : tempArr}
-			},returnFunc);
-		if(col2)
-			db.col1.find({
-				FbId: { $in : tempArr}
-			},returnFunc);
-	});
+			if(err)
+				errcallback(err);
+			else
+				callback(users);
+		};
+		query.$and.push({FbId : { $in : tempArr}});
+		people.find(query).toArray(returnFunc);
 
+	});
 }
 // function for initializing database connection
 exports.connect = function (callback){
@@ -225,56 +183,32 @@ exports.connect = function (callback){
 	}
 	else{
 		mongo.Db.connect(mongoUri,function(err, myDb){
-			db = myDb;
-			console.log("connected to the database");
-			process.nextTick(callback);
+			if(err)
+				console.log(err);
+			else{
+				db = myDb;
+				console.log("connected to the database");
+				initCollections();
+				callback();
+			}
 		});
 	}
 }
-// return object representing  user collections 
-// base on age parameter and gender
-// some ages maybe belong to two collections
-exports.getCollections = function (age, gender){
-	var returnedCollections = {
-		col1: null,
-		col2: null,
-	};
-	// male teen
-	if( (age<18) && (gender==="male")){
-		returnedCollections.col1 = teenMale;
-		return returnedCollections;
-	// female teen
-	}else if( (age<18) && (gender==="male") ){
-		returnedCollections.col1 = teenFemale;
-		return returnedCollections;
-		//male teen/young
-	}else if( ( age===18 || age ===19) && (gender ==='male') ){
-		returnedCollections.col1 = teenMale;
-		returnedCollections.col2 = youngMale;
-		return returnedCollections;
-	}else if( ( age===18 || age ===19) && (gender ==='female') ){
-		returnedCollections.col1 = teenFemale;
-		returnedCollections.col2 = youngFemale;
-		return returnedCollections;
-	}else if ( (age > 19 || age < 26) && (gender === 'male') ){
-		returnedCollections.col1 = youngMale;
-		return returnedCollections;
-	}else if ( (age > 19 || age < 26) && (gender === 'female') ){
-		returnedCollections.col1 = youngFemale;
-		return returnedCollections;
-	}else if ((age >= 26 && age < 29) && (gender ==='male')){
-		returnedCollections.col1 = youngMale;
-		returnedCollections.col2 = oldMale;
-		return returnedCollections;
-	}else if ((age >= 26 && age < 29) && (gender ==='female')){
-		returnedCollections.col1 = youngFemale;
-		returnedCollections.col2 = oldFemale;
-		return returnedCollections;
-	}else if (gender === 'male'){
-		returnedCollections.col1 = oldMale;
-		return returnedCollections;
-	}else{
-		returnedCollections.col1 = oldFemale;
-		return returnedCollections;
-	}
+
+
+//  min age = current age divided by 2 + 7
+//  max age = current age - 7 multiplied by 2
+
+// return an object  for use   in db.find() that decides what age range of users to return
+// as well as gender
+exports.getUserQuery = function(Age,Gndr){
+	if(Gndr === 'Male')
+		Gndr = 'Female';
+	else 
+		Gndr = 'Male';
+	var minAge = Math.floor(Age / 2) + 7;
+	var maxAge = Math.floor((Age - 7)*2);
+	var query ={ Age: { $gte: minAge, $lte: maxAge } ,Gender:Gndr };
+	return query;
 }
+

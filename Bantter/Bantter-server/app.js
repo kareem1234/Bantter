@@ -4,6 +4,7 @@
   save one core for os related functions
 
 */
+/*
  var cluster = require('cluster');
  var numCPUs = require('os').cpus().length-2;
  if (cluster.isMaster) {
@@ -12,6 +13,7 @@
     cluster.fork();
   }
 }
+*/
 
 
 /* 
@@ -28,12 +30,12 @@ var app = express();
 var portNum = Math.floor(Math.random()*10000);
 
 // all environments
-app.set('port', process.env.PORT || portNum);
+app.set('port', process.env.PORT || 3000);
 app.set('views', __dirname + '/views');
 app.set('view engine', 'jade');
 app.use(express.favicon());
 app.use(express.logger('dev'));
-app.use(express.bodyParser({defer:true}));
+app.use(express.bodyParser());
 app.use(express.methodOverride());
 app.use(app.router);
 app.use(express.static(path.join(__dirname, 'public')));
@@ -47,7 +49,7 @@ if ('development' == app.get('env')) {
 app.get('/findWhoLikedMe',routes.findWhoLikedMe);
 app.get('/findWhoILike',routes.findWhoILike);
 app.get('/getVideoRefs',routes.getVideoRefs);
-app.get("/getInbox",routes.getInbox);
+app.get("/getInbox",routes.getInboxRefs);
 app.get("/findUsers",routes.findUsers);
 app.get("/findInboxUsers",routes.findInboxUsers);
 //
