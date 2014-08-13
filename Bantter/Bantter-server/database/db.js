@@ -44,7 +44,8 @@ exports.insertUser = function (user,callback, errcallback){
 }
 // updateUser with specified collection
 exports.updateUser = function(user,callback,errcallback){
-	people.update({FbId:user.FbId},user,function(err,result){
+	var date = new Date().getTime();
+	people.update({FbId:user.FbId},{$set: {TimeStamp: date}},function(err,result){
 		if(err) errcallback();
 		else callback();
 	})
@@ -65,7 +66,8 @@ exports.insertIdPair = function(fbId, userId,callback,errcallback){
 }
 // find a userId/fbId matching from idpairs collection
 exports.getIdPair = function(userId, callback,errcallback){
-	idPairs.find({UserId: userId}).toArray(function(err,docs){
+	idPairs.find({"UserId": Number(userId)}).toArray(function(err,docs){
+		console.log(docs);
 		if(err)errcallback(err);
 		else callback(docs);
 	});
@@ -102,8 +104,10 @@ exports.insertVidRef = function(vRef,callback,errcallback){
 	});
 }
 // find videoReferences//selfies belonging to specified facebook id
-exports.findVidRefs = function(FbId,callback,errcallback){
-	vidRefs.find({FbId: FbId, to:"all"}).toArray(function(err,refs){
+exports.findVidRefs = function(fbId,callback,errcallback){
+	console.log(fbId);
+	console.log(typeof(fbId));
+	vidRefs.find({FbId: fbId, To:"All"}).toArray(function(err,refs){
 		if(err) errcallback();
 		else callback(refs);
 	});
@@ -129,9 +133,9 @@ exports.findWhoILike = function(query,FbId,callback,errcallback){
 			if(err)
 				errcallback(err);
 			else
-				callback(results);
+				callback(users);
 		};
-		query.$and.push({FbId : { $in : tempArr}});
+		query.FbId= { $in : tempArr} ;
 		people.find(query).toArray(returnFunc);
 	});
 }
@@ -149,7 +153,7 @@ exports.findInboxUsers = function(query,FbId,callback,errcallback){
 		else
 			callback(users);
 		};
-		query.$and.push({FbId : { $in : tempArr}});
+		query.FbId= { $in : tempArr};
 		people.find(query).toArray(returnFunc);
 		
 	});
@@ -170,7 +174,7 @@ exports.findWhoLikedMe = function(query,FbId,callback,errcallback){
 			else
 				callback(users);
 		};
-		query.$and.push({FbId : { $in : tempArr}});
+		query.FbId = { $in : tempArr};
 		people.find(query).toArray(returnFunc);
 
 	});

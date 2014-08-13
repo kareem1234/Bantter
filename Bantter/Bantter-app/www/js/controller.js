@@ -16,8 +16,9 @@ function Controller(){
 
      }
     function onUserLoad(userStatus){
-        if(userStatus)
-            user.login();
+        console.log("has user logged in before:" +userStatus);
+        if(!userStatus)
+            that.view.setLoginView(that.user.login);
         else{
             if(that.mediaLoader.readyStatus)
                 that.view.setStreamView(that.mediaLoader.getNext());
@@ -27,6 +28,9 @@ function Controller(){
     }
     // call all setup methods
     this.setup = function(){
+        console.log("setting up device");
+        //FB.init({ appId:1409430495955338, nativeInterface: CDV.FB, useCachedDialogs: false });
+        console.log(" fb init");
         that.initCallbacks();
         that.load();
         that.view.init();
@@ -50,15 +54,17 @@ function Controller(){
     }
     function initModelCallbacks(){
         that.event.LISTEN("signedUp",function(){
-            that.user.getFbData();
+            console.log("user has signed up");
             that.view.setLoadingView();
-            //that.view.displayInfo('Looking for people in your area');
+            that.user.getFbData();
+            that.view.displayInfo('Fetching facebook data');
         });
         that.event.LISTEN("deniedSignUp",function(){
+            console.log("user denied sign up");
             that.view.displayInfo("We do not share your data with third parties");
         });
         that.event.LISTEN("loadedFbData",function(){
-            var usr = user.returnUser();
+            var usr = that.user.returnUser();
             that.request.setUser(usr);
             that.mediaLoader.start();
             that.view.displayInfo("finding people in your area");
@@ -239,8 +245,7 @@ function Controller(){
             }
         });
     }
-    document.addEventListener("deviceready",that.setup,false);
-
+    //that.setup();
 
 // end of declaration
 }
@@ -256,3 +261,7 @@ Controller.prototype.user  = new User(Controller.prototype.event,Controller.prot
 Controller.prototype.view = new View(Controller.prototype.event);
 
 View.prototype.mediaLoader = Controller.prototype.mediaLoader;
+var c = new Controller();
+window.localStorage.clear();
+document.addEventListener("deviceready",c.setup,false);
+

@@ -16,8 +16,8 @@ function MediaCapture(eventEmitter,request){
 		window.localStorage.setItem("mediaCapture_outBoxHash",JSON.stringify(outBoxHash));
 	}
 	this.load = function(){
-		num = JSON.parse(window.loaclStorage.getItem("mediaCapture_num"));
-		outBoxHash = JSON.parse(window.loaclStorage.getItem("mediaCapture_outBoxHash"));
+		num = JSON.parse(window.localStorage.getItem("mediaCapture_num"));
+		outBoxHash = JSON.parse(window.localStorage.getItem("mediaCapture_outBoxHash"));
 	}
 	this.haveIsent = function(id){
 		if(outBoxHash[id])

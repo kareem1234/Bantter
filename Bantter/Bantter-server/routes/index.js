@@ -11,7 +11,7 @@ function errCallback(res){
 		if(err)
 			console.log(err);
 		if(res && !res.headersSent)
-			res.error();
+			res.send(404);
 	};
 	return func;
 }
@@ -24,13 +24,15 @@ exports.insertUser = function(req,res){
 	db.insertIdPair(user.FbId,user.Id,callback,errCallback(res));
 }
 exports.insertLike = function(req,res){
-	checkPermision(req.body.UserId,req.body.FbId,res,function(){
+	convertPropsToNum(req.body);
+	checkPermision(req.body.Id,req.body.FbId,res,function(){
 		db.insertLike(req.body.Like,function(){
 			res.end();
 		},errCallback(res));
 	});
 }
 exports.findUsers = function(req,res){
+	convertPropsToNum(req.query);
 	var query = db.getUserQuery(req.query.Age,req.query.Gender);
 	var callback = function(docs){
 		for(var i=0; i<docs.length; i++)
@@ -40,43 +42,53 @@ exports.findUsers = function(req,res){
 	db.findUsers(query,req.query,req.query.Range,req.query.Time,callback,errCallback(res));
 }
 exports.findWhoLikedMe= function(req, res){
+	convertPropsToNum(req.query);
 	var query = db.getUserQuery(req.query.Age,req.query.Gender);
 	var callback = function(docs){
+		for(var i=0; i<docs.length; i++)
+				delete docs[i].Id;		
 		res.json(docs);
 	};
-	checkPermision(req.query.UserId,req.query.FbId,res,function(){
+	checkPermision(req.query.Id,req.query.FbId,res,function(){
 		db.findWhoLikedMe(query,req.query.FbId,callback,errCallback(res));
 	});
 }
 exports.findInboxUsers = function(req,res){
 	var query = db.getUserQuery(req.query.Age,req.query.Gender);
+	convertPropsToNum(req.query);
 	var callback = function(docs){
 		res.json(docs);
 	};
-	checkPermision(req.query.UserId,req.query.FbId,res,function(){
+	checkPermision(req.query.Id,req.query.FbId,res,function(){
 		db.findInboxUsers(query,req.query.FbId,callback,errCallback(res));
 	});
 }
 exports.findWhoILike = function(req, res){
 	var query = db.getUserQuery(req.query.Age,req.query.Gender);
+	convertPropsToNum(req.query);
 	var callback = function(docs){
+		for(var i=0; i<docs.length; i++)
+				delete docs[i].Id;
 		res.json(docs);
 	};
-	checkPermision(req.query.UserId,req.query.FbId,res,function(){
+	checkPermision(req.query.Id,req.query.FbId,res,function(){
 		db.findWhoILike(query,req.query.FbId,callback,errCallback(res));
 	});
 }
 
 exports.getVideoRefs = function(req,res){
+	convertPropsToNum(req.query);
 	db.findVidRefs(req.query.FromFbId,function(docs){
+		console.dir(docs);
 		res.json(docs);
-	}.errCallback(res));
+	},errCallback(res));
 }
 exports.getInboxRefs = function(req,res){
+	convertPropsToNum(req.query);
 	var callback = function(docs){
 		res.json(docs);
 	};
-	checkPermision(req.query.UserId,req.query.FbId,function(){
+	checkPermision(req.query.Id,req.query.FbId,function(){
 		db.findInboxRef(req.query.FbId,callback,errCallback(res));
 	});
 }
@@ -99,21 +111,56 @@ returnSignedPolicy = function(vidRef, res){
  
 }
 exports.getPolicy = function(req,res){
+	convertPropsToNum(req.body);
 	returnSignedPolicy(req.body.VidRef,res);
 }
-convertPropstoNum = function(user){
+convertPropsToNum = function(user){
 	user.FbId = Number(user.FbId);
 	user.Id = Number(user.Id);
 	user.Lat = Number(user.Lat);
 	user.Lgt = Number(user.lgt);
+	user.Age = Number(user.Age);
+	user.TimeStamp = Number(user.TimeStamp);
+	if(user.Range)
+		user.Range = Number(user.Range);
+	if(user.Time)
+		user.Time = Number(user.Time);
+	if(user.FromFbId)
+		user.FromFbId = Number(user.FromFbId);
+	if(user.Like){
+		console.log("printing like")
+		console.dir( typeof(user.Like[0].From));
+		for(var i =0; i< user.Like.length; i++){
+			if(typeof(user.Like[i].From) != 'number')
+				user.Like[i].From = Number(user.Like.From);
+			if(typeof(user.Like[i].From) != 'number')
+				user.Like[i].To = Number(user.Like.To);
+		}
+	}
+		console.dir(user.Like);
+
+
 
 }
 checkPermision = function(userId, fbId,res, callback){
+	console.log('userId:'+userId+" fbId"+fbId);
+	console.log("checking if ids are numbers: " +typeof(fbId));
+	console.log("checking permission");
 	db.getIdPair(userId,function(docs){
-		if(docs.length == 0)
-				errCallback(res);
-		else if(docs[0].FbId === fbId  && docs[0].UserId === userId)
+		if(docs.length == 0){
+				console.log(docs.length);
+				console.log("no matching id found")
+				var er =errCallback(res);
+				er();
+			}
+		else if(docs[0].FbId === fbId  && docs[0].UserId === userId){
+				console.log("id pair matches");
 				callback(true);
-		else  errCallback(res);
+			}
+		else {
+			console.log("ids do not match");
+			var er = errCallback(res);
+			er();
+		}
 	},errCallback(res));
 }

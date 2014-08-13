@@ -8,6 +8,15 @@ var elastictranscoder = new AWS.ElasticTranscoder();
 var pipes = new Array();
 var preset;
 
+function errCallback(res){
+  var func = function(err){
+    if(err)
+      console.log(err);
+    if(res && !res.headersSent)
+      res.send(404);
+  };
+  return func;
+}
 
 function getPipes(callback){
 	var params = {
@@ -46,7 +55,9 @@ function getPresets(callback){
 
 function transcode(fileName,callback,errCallback){
 var newfileName = fileName +".mp4";
-var pipeId = pipes[Math.floor(Math.random *pipes.length)]
+var pipeId = pipes[0];
+console.log(pipeId);
+console.log("setting up transcode params");
 var params = {
   Input: { // required
       AspectRatio: 'auto',
@@ -56,14 +67,15 @@ var params = {
       Key: fileName,
       Resolution: 'auto'
     },
-  PipelineId:'pipeId',
+  PipelineId:pipeId,
   Output:{
         Key: newfileName,
         PresetId: preset
     }
   };
+  console.dir(params);
   elastictranscoder.createJob(params,function(err,data){
-      if(err) errCallback();
+      if(err) errCallback(err);
       else
           callback();
       
@@ -82,27 +94,16 @@ exports.initTranscode = function(callback){
 exports.insertVidRef = function(req,res){
   var ref = req.body.VidRef;
   var user = req.body;
-  var collections = db.getCollections(user.Age,user.Gender);
-  delete user.VidRef;
-  var err = function(){
-      if(!res.headersSent)
-        res.error();
-  };
+
   var suc = function(){
-    if(!res.headersSent)
       res.end();
   };
   var callback = function(){
-     db.insertVidref(ref,function(){
-        if(collections.col2){
-            db.updateUser(collections.col1,user,suc,err);
-            db.updateUser(collections.col2,user,succ,err);
-        }
-        else
-          db.updateUser(collections.col1,user,suc,err);
-     },err);
+     db.insertVidRef(ref,function(){
+        db.updateUser(user,suc,errCallback(res));
+     },errCallback(res));
   };
-  transcode(ref.url,callback);
+  transcode(ref.Url,callback,errCallback(res));
 }
 
 /*

@@ -27,7 +27,6 @@ var User = {
 var vidRef = {
 		FbId: "fbIdofUser",
 		Url: "urlofvideo"
-		Caption: "description of media",
 		Number : "uploadNum",
 		To: "undefined/fbId",
 		type: "contentType"

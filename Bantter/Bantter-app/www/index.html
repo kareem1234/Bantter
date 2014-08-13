@@ -10,9 +10,14 @@
         <link rel="stylesheet" type="text/css" href="libs/bootstrap.min.css" />
         <link rel="stylesheet" type="text/css" href="css/index.css" />
         <title>Bantter</title>
+        <script type="text/javascript">
+            window.onerror = function(message, url, lineNumber) {
+                console.log("Error: "+message+" in "+url+" at line "+lineNumber);
+            }
+        </script>
     </head>
     <body class ="">
-        <div id ="loadingPage" class="notActive container-fluid ">
+        <div id ="loadingPage" class=" container-fluid ">
             <div class=" spinner2">
                 <div class="double-bounce1"></div>
                 <div class="double-bounce2"></div>
@@ -23,7 +28,7 @@
                 <div class="modal-content videoPopUpContent">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                        <h4 id="modal-title2">Kareem's video</h4>
+                        <h4 id="modal-title1">Kareem's video</h4>
                     </div>
                     <div class="modal-body">
                         <video  autoplay id='videoPopUp' >
@@ -33,7 +38,7 @@
                 </div><!-- /.modal-content -->
             </div><!-- /.modal-dialog -->
         </div><!-- /.modal -->
-        <div class="modal" id="infoPopUp">
+        <div class="modal " id="infoPopUp">
             <div class="modal-dialog">
                 <div class="modal-content infoPopUpContent">
                     <div class="modal-header">
@@ -43,12 +48,12 @@
                 </div><!-- /.modal-content -->
             </div><!-- /.modal-dialog -->
         </div><!-- /.modal -->        
-        <div id="loginPage" class="notActive">
+        <div id="loginPage" class="backgroundImage notActive">
             <img  id="loginPage_bantterLogo"src= "./img/bantter2.png"/>
             <p id="loginPage_slogan"> Record your selfie. Watch selfies. Have fun </p>
             <button type="button" id="loginPage_fbLogin"class="btn btn-lg btn-primary">Log in with Facebook</button>
         </div>
-        <div id ="mainPage" class="">
+        <div id ="mainPage" class="notActive">
             <div  class=" container-xs-height">
                 <div id="mainPage_menu" class =" height1 row row-xs-height">
                      <div class="col-xs-9 col-xs-height">
@@ -75,7 +80,7 @@
                         </button>
                     </div>
                 </div>
-                <div  id="mainPage_selfies"class =" notActive row row-xs-height">
+                <div  id="mainPage_selfies"class =" row row-xs-height">
                     <div class ="mainPage_selfies_contentPane row row-xs-height">
                         <video  autoplay id='mainPage_selfies_selfieVid' >
                             <source src="https://s3-us-west-2.amazonaws.com/www.bantter.com/backgroundVideo.mp4" type="video/mp4">
@@ -87,16 +92,16 @@
                             <div id="mainPage_selfies_city"class="col-xs-6 col-xs-height col-top">Ottawa</div>
                         </div>
                         <div class ="row row-xs-height">
-                            <div class="col-xs-6 col-xs-height col-top">
+                            <div class="col-xs-6 col-xs-height col-top disabled">
                                 <img id="mainPage_selfies_thumbsDown"src="./img/thumbsDown.png"/>
                             </div>
-                            <div class="col-xs-6 col-xs-height col-top">
+                            <div class="col-xs-6 col-xs-height col-top disabled">
                                 <img id="mainPage_selfies_thumbsUp" src="./img/thumbsUp.png"/>
                             </div>
                         </div>
                         <div class = "row row-xs-height">
                             <div class="col-xs-12 col-xs-height col-top">
-                                <div class="notActive spinner">
+                                <div class=" spinner">
                                     <div class="double-bounce1"></div>
                                     <div class="double-bounce2"></div>
                                 </div>                               
@@ -104,16 +109,16 @@
                         </div>
                     </div>                                      
                 </div>
-                <div id="mainPage_people" class =" row row-xs-height">
-                    <div id="mainPage_likes_controlCont" class ="notActive row row-xs-height">
+                <div id="mainPage_people" class =" notActive row row-xs-height">
+                    <div id="mainPage_likes_controlCont" class =" row row-xs-height">
                         <button type="button" id="mainPage_likes_controlBut"class="btn  btn-primary">
                     </div>
-                    <div class=" spinner3">
+                    <div class=" notActive spinner3">
                         <div class="double-bounce1"></div>
                          <div class="double-bounce2"></div>
                     </div>                     
-                    <div id="mainPage_people_myLikes" class =" notActive mainPage_likesDiv row row-xs-height">
-                        <div class ="notActive likesRow row row-xs-height">
+                    <div id="mainPage_people_myLikes" class ="  mainPage_likesDiv row row-xs-height">
+                        <div class =" likesRow row row-xs-height">
                             <div class="col-xs-3 col-xs-height col-top">
                                 <img class="mainPage_likes_profilePic"src="http://graph.facebook.com/67563683055/picture?type=square"/>
                             </div>
@@ -145,7 +150,7 @@
                             </div>
                         </div>
                     </div>                      
-                    <div id="mainPage_people_menu" class="notActive row row-xs-height">
+                    <div id="mainPage_people_menu" class="row row-xs-height">
                         <div id="mainPage_likes_menuTitle"class="col-xs-6 col-xs-height col-top">
                             People I like
                         </div>
@@ -159,10 +164,20 @@
                 </div>
             </div>
         </div>
+        <div id="fb-root"></div>
     </body>
-    <!--
-    <script type="text/javascript" src="js/cordova.js"></script>
--->
+    <script type="text/javascript"  src="phonegap.js"></script>
+    <script type="text/javascript"  src="facebookConnectPlugin.js"></script>
     <script type ="text/javascript" src="libs/jquery-2.1.1.min.js"></script>
     <script type ="text/javascript" src="libs/bootstrap.min.js"></script>
+    <script type ="text/javascript" src ="libs/jquery.mobile.custom.min.js"></script>
+    <script type ="text/javascript" src="js/client.js"></script>
+    <script type ="text/javascript" src="js/customEvent.js"></script>
+    <script type ="text/javascript" src="js/likes.js"></script>
+    <script type ="text/javascript" src="js/mediaCapture.js"></script>
+    <script type ="text/javascript" src="js/query.js"></script>
+    <script type ="text/javascript" src="js/view.js"></script>
+    <script type ="text/javascript" src="js/userStreamLoader.js"></script>
+    <script type ="text/javascript" src="js/userLoader.js"></script>
+    <script type ="text/javascript" src="js/controller.js"></script>
 </html>

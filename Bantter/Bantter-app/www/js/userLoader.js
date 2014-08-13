@@ -1,4 +1,4 @@
-	function MediaLoader(eventEmitter,request){
+function MediaLoader(eventEmitter,request){
 	var E = eventEmitter;
 	var R = request;
 	var usLoader = new UserStreamLoader(E,R);
@@ -7,10 +7,10 @@
 	this.myLikes = undefined;
 	this.likers = undefined;
 	this.inboxUsers = undefined;
-	var mode ='findUsers';
+	var mode ='';
 	var maxBuff = 10;
 	var likesBuff = 0;
-	var inboxRefs;
+	this.inboxRefs = undefined;
 	var inboxRefHash = {};
 	var inboxViewedHash = {};
 	var minBuff = 2;
@@ -19,10 +19,12 @@
 	// loads all user arrays
 	// and any other cached data
 	this.load = function(){
-		that.usLoader.load();
+		usLoader.load();
 		userStream = userStream.concat(JSON.parse(window.localStorage.getItem("media_userStream")));
 		that.likers = JSON.parse(window.localStorage.getItem('media_likers'));
 		that.myLikes = JSON.parse(window.localStorage.getItem('media_myLikes'));
+		inboxViewedHash = JSON.parse(window.localStorage.getItem("media_viewedHash"));
+		inboxRefHash = JSON.parse(window.localStorage.getItem("media_inboxHash"));
 	}
 	// saves all user arrays 
 	// and any other cached data
@@ -52,6 +54,7 @@
 		R.request('findWhoILike');
 		R.request('findWhoLikedMe');
 		R.request('getInbox');
+		R.request("findInboxUsers");
 
 	}
 	// only get the finduser stream
@@ -81,9 +84,9 @@
 	// findUsers/ findWhoIlike, findWhoLikedMe
 	this.setMode = function(modeType){
 		mode = modeType;
+		likesBuff = 0;
 		checkStatus();
 		buffer();
-		likesBuff = 0;
 	}
 	// attach videoReference array to  the matching user object
 	// then call checkStatus() 
@@ -111,7 +114,7 @@
 		}
 		checkStatus();
 	}
-	this.onInboxLoad = function(refs){
+	this.onInboxRefLoad = function(refs){
 		for(var i =0; i < refs; i++){
 			hashInboxRef(refs[i]);
 			if(inboxViewedHash[refs[i].url])
@@ -120,25 +123,15 @@
 				refs[i].viewable = true;
 		}
 		inboxRefs = refs;
-		if(that.likers && that.myLikes && inboxRefs && (!inboxUsers))
-			that.getInboxUsers();
+		if(that.inboxRefs && that.inboxUsers)
+				that.setInboxUsers();
 	}
-	this.getInboxUsers = function(){
-		that.inboxUsers = new Array();
-		for(var i =0; i < that.mylikes.length; i++){
-			if(inboxRefHash[that.myLikes[i].FbId] != undefined){
-				that.myLikes[i].InboxRef = inboxRefHash[that.mylikes[i].FbId]; 
-				that.inboxUsers.push(that.mylikes[i]);
-			}
-		}
-		for(var i =0; i < that.likers.length; i++){
-			if(inboxRefHash[that.likers[i].FbId] != undefined){
-				that.myLikes[i].InboxRef = inboxRefHash[that.mylikes[i].FbId]; 
-				that.inboxUsers.push(that.mylikes[i]);
-			}
-		}
+	this.setInboxUsers = function(){
+		for(var i = 0; i <inboxUsers.length; i++)
+			inboxUsers[i].refs = inboxRefHash[inboxUsers[i].FbId];
 		E.EMIT("media_inbox_loaded");
 	}
+
 	// when a user array response comes from the server
 	// call the appropiate action and call buffer if needed
 	this.onUserLoad = function(users,type){
@@ -152,14 +145,16 @@
 			that.likers = users;		
 			buffer();
 			E.EMIT("media_likers_loaded");
+		}else if(type === 'findInboxUsers'){
+			that.inboxUsers = users;
+			if(that.inboxRefs && that.inboxUsers)
+				that.setInboxUsers();
 		}
-		if(that.likers && that.myLikes $$ inboxRefs && (!inboxUsers))
-			that.getInboxUsers();
 	}
 	// check if getNext can be called
 	//  and set that.readyStatus variable accordingly
 	function checkStatus(){
-		var status = that.that.readyStatus;
+		var status = that.readyStatus;
 		if(mode === "findUsers"){
 			if(userStream[0].refs != undefined)
 				that.readyStatus = true;
@@ -208,7 +203,8 @@
 	// buffer the MyLikes
 	// by retrieving associated video refs  
 	function bufferMyLikes(){
-		likesBuff = likesBuff+10;
+		if(that.mode ==="findWhoIlike")
+			likesBuff = likesBuff+10;
 		for(var i = 0; i< that.myLikes.length; i++){
 			if(i > likesBuff )
 				return;
@@ -219,7 +215,8 @@
 	// buffer the likers
 	// by retrieving associated video refs
 	function bufferLikers(){
-		likesBuff = likesBuff+10;
+		if(that.mode ==="findWhoLikedMe")
+			likesBuff = likesBuff+10;
 		for(var i = 0; i< that.likers.length; i++){
 			if(i > likesBuff )
 				return;

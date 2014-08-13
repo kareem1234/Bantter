@@ -9,8 +9,6 @@ function View(EventEmitter){
 	var vidUrl = 'https://s3.amazonaws.com/bantter-downloads/';
 	this.currentView ="";
 	this.init = function(){
-		$('#infoPopUp').modal();
-		$('#videoPopUpModal').modal();
 		initVidControll();
 		$(".close").bind("tap",function(){
 			$(".modal").modal("hide");
@@ -34,10 +32,16 @@ function View(EventEmitter){
 		});
 	}
 	this.setLoadingView = function(){
+		console.log("setting loadingView");
+		$("body").css({
+			"-webkit-transform": "rotate(360deg)",
+			"-moz-transform": "rotate(360deg)"
+		});
 		that.currentView='loadingView';
 		$("#loginPage").addClass("notActive");
 		$("#mainPage").addClass("notActive");
-		$("loadingPage").removeClass("notActive");
+		$("#loadingPage").removeClass("notActive");
+		console.log("loading view set");
 	}
 	this.streamViewDisplayNext = function(user){
 		$("#mainPage_selfies_name").text(user.Name+" "+user.Age);
@@ -47,11 +51,11 @@ function View(EventEmitter){
 		vid.get(0).play();
 	}
 	this.displayInfo = function(text){
-		$("#modal-title2").text(text);
+		$("#modal-title2").html(text);
 		$("#infoPopUp").modal('show');
 		setTimeout(function(){
 			$("#infoPopUp").modal("hide");
-		},1000);
+		},3000);
 
 	}
 	this.streamViewRemoveLoading = function(){
@@ -75,7 +79,7 @@ function View(EventEmitter){
 		$("#mainPage").addClass("notActive");
 		$("#loadingPage").addClass("notActive");
 		$("#loginPage").removeClass("notActive");
-		$("#loginPage_fbLogin").bind("tap",loginFunc);
+		$("#loginPage_fbLogin").bind("click",loginFunc);
 	}
 	this.setMenu = function(){
 		if(!menuSet){
@@ -343,5 +347,5 @@ function View(EventEmitter){
 
 }
 
-View.prototype.mediaLoader = Controller.prototype.mediaLoader;
+
 

@@ -1,28 +1,28 @@
 var request = require("request");
+var qs  = require("querystring");
+var body = {
+	    	"Name": "wmasD",
+    	"FbId": 432341086,
+    	"Id": 648042764,
+    	"Age": 25,
+    	"City": "Ottawa",
+    	"Lat": 49,
+    	"Lgt": 80,
+    	"Gender": "Male",
+    	"TimeStamp": 0,
+    	"FromFbId"
+		};
 var options = {
-		url:"http://localhost:3000/findUsers",
+		url:"http://localhost:3000/findWhoLikedMe?" + qs.stringify(body),
 		json:true,
-		body:{
-			Name: makeid(),
-			FbId: Math.floor(Math.random() * 1000000000),
-			Id: Math.floor(Math.random() * 1000000000),
-			Age: 22,
-			City: "Ottawa",
-			Lat: 37,
-			Lgt: 75,
-			Gender: "Male",
-			TimeStamp: 0,
-			Time: 0,
-			Range: 10
-		}
 };
-request.get(options,callback);
 var callback = function(err,res,body){
 	if(err)
 		console.log(err);
-	else
+	else{
 		console.log("completed request");
-	console.dir(res.body);
+		console.dir(body);
+	}
 };
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -34,3 +34,6 @@ function makeid(){
         text += possible.charAt(Math.floor(Math.random() * possible.length));
     return text;
 }
+
+request.get(options,callback);
+

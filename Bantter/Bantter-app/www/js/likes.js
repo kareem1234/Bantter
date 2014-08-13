@@ -6,14 +6,14 @@ function Likes(eventEmitter, Request){
 	var maxBuffer = 2;
 	var likes = new Array();
 	this.save = function(){
-
+		window.localStorage.setItem("likes_likesArray",JSON.stringify(likes));
 	}
 	this.load = function(){
-
+		likes = JSON.parse(window.localStorage.getItem("likes_likesArray"));
 	}
 	this.addLike = function(toId){
 		var like = {
-			From: R.getUser().FbId;,
+			From: R.getUser().FbId,
 			To: toId
 		};
 		likes.push(like);
