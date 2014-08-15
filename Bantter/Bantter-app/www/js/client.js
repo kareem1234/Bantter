@@ -32,7 +32,7 @@ function User(eventEmitter,request){
 			me = JSON .parse(me);
 			Age = me.Age; Gender = me.Gender; City = me.City; Name = me.Name;
 			Id = me.Id; FbId = me.FbId; Lat = me.Lat; Lgt = me.Lgt; TimeStamp = me.TimeStamp;
-			return true;
+			return me;
 		}
 	}
 	// facebook login function
@@ -82,7 +82,6 @@ function User(eventEmitter,request){
 				Lat = response.location.latitude;
 				Lgt = response.location.longitude;
 				console.log(that.returnUser());
-				//insertUser();
 				E.EMIT('loadedFbData');
 			}
 		};
@@ -91,6 +90,7 @@ function User(eventEmitter,request){
 	// send user object to server
 	function insertUser(){
 		var _user = that.returnUser();
+		console.dir(_user);
 		R.request("insertUser",_user);
 	}
 	// extract age from
@@ -115,11 +115,15 @@ function User(eventEmitter,request){
 		name  = name.substring(0,index+2);
 		return name;
 	}
+	function parseGender(gender){
+    	return gender.charAt(0).toUpperCase() + gender.slice(1);
+	}
 	// extract all strings and set variables;
 	function formatFbData(data){
 		console.log("formatting facebook data");
 		FbId = data.id;
-		Gender = data.gender;
+		Gender = parseGender(data.gender);
+		console.log(Gender);
 		Name = parseName(data.name);
 		console.log(Name);
 		City = parseCity(data.location.name);

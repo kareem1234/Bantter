@@ -1,6 +1,6 @@
 
 function Request(EventEmitter){
-	var domain;
+	var domain = "http://localhost:3000";
 	var me;
 	var E = EventEmitter;
 	var that = this;
@@ -9,11 +9,13 @@ function Request(EventEmitter){
 
 	this.setUser = function(user){
 		me = user;
+		console.dir(me);
 	}
 	this.getUser = function(){
 		return me;
 	}
 	function makeRequest(Type,URL,Data){
+		console.dir(Data);
 		$.ajax({
 			url: domain+URL,
 			type: Type,
@@ -29,13 +31,16 @@ function Request(EventEmitter){
 			if(tries %4 == 0)
 				timeout = timeout + 1000;
 			E.EMIT("failed"+URL,error);
+			/*
 			setTimeout(function(){
 				makeRequest(Type,URL,Data);
 			},timeout);
+*/
 		});
 	}
 	this.request = function(string,data){
 		console.log("attempting to request: "+string);
+		console.log("my status is: "+ me);
 		switch(string){
 			case "insertLike" :
 				me.Like = data;

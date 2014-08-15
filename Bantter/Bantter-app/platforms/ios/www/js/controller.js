@@ -20,6 +20,7 @@ function Controller(){
         if(!userStatus)
             that.view.setLoginView(that.user.login);
         else{
+            that.request.setUser(userStatus);
             if(that.mediaLoader.readyStatus)
                 that.view.setStreamView(that.mediaLoader.getNext());
             else
@@ -29,8 +30,6 @@ function Controller(){
     // call all setup methods
     this.setup = function(){
         console.log("setting up device");
-        //FB.init({ appId:1409430495955338, nativeInterface: CDV.FB, useCachedDialogs: false });
-        console.log(" fb init");
         that.initCallbacks();
         that.load();
         that.view.init();
@@ -66,7 +65,9 @@ function Controller(){
         that.event.LISTEN("loadedFbData",function(){
             var usr = that.user.returnUser();
             that.request.setUser(usr);
-            that.mediaLoader.start();
+            console.log("controller inserting user");
+            that.request.request('insertUser');
+            //that.mediaLoader.start();
             that.view.displayInfo("finding people in your area");
         });
         that.event.LISTEN("media_ready",function(){

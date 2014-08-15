@@ -33,10 +33,6 @@ function View(EventEmitter){
 	}
 	this.setLoadingView = function(){
 		console.log("setting loadingView");
-		$("body").css({
-			"-webkit-transform": "rotate(360deg)",
-			"-moz-transform": "rotate(360deg)"
-		});
 		that.currentView='loadingView';
 		$("#loginPage").addClass("notActive");
 		$("#mainPage").addClass("notActive");

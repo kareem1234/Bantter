@@ -16,6 +16,7 @@ function errCallback(res){
 	return func;
 }
 exports.insertUser = function(req,res){
+	console.dir(req.body);
 	var user = req.body
 	var callback = function(){
 			res.end();
@@ -88,7 +89,7 @@ exports.getInboxRefs = function(req,res){
 	var callback = function(docs){
 		res.json(docs);
 	};
-	checkPermision(req.query.Id,req.query.FbId,function(){
+	checkPermision(req.query.Id,req.query.FbId,res,function(){
 		db.findInboxRef(req.query.FbId,callback,errCallback(res));
 	});
 }
@@ -150,7 +151,7 @@ checkPermision = function(userId, fbId,res, callback){
 		if(docs.length == 0){
 				console.log(docs.length);
 				console.log("no matching id found")
-				var er =errCallback(res);
+				var er = errCallback(res);
 				er();
 			}
 		else if(docs[0].FbId === fbId  && docs[0].UserId === userId){
