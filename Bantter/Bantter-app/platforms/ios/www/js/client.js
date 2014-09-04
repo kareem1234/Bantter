@@ -11,6 +11,7 @@ function User(eventEmitter,request){
 		var me = {};
 	    me.Age = Age; me.Gender = Gender; me.City = City; me.Name = Name; 
 		me.Id = Id; me.FbId = FbId; me.Lat = Lat; me.Lgt = Lgt; me.TimeStamp = TimeStamp;
+		console.log("age is: "+me.Age);
 		return me;
 	}
 	this.updateTimeStamp = function(time){
@@ -20,16 +21,20 @@ function User(eventEmitter,request){
 	this.save = function(){
 		if(!Age)
 			return;
-		else
-			window.localStorage.setItem("me", JSON.stringify(that.returnUser));
+		else{
+			console.log("saving user"+JSON.stringify(that.returnUser()));
+			window.localStorage.setItem("me", JSON.stringify(that.returnUser()));
+		}
 	}
 	// function loading user object out of local storage
 	this.load = function(){
 		var me = window.localStorage.getItem("me");
-		if(me === null)
+		if(!me){
+			console.log("returning false");
 			return false;
+		}
 		else{
-			me = JSON .parse(me);
+			me = JSON.parse(me);
 			Age = me.Age; Gender = me.Gender; City = me.City; Name = me.Name;
 			Id = me.Id; FbId = me.FbId; Lat = me.Lat; Lgt = me.Lgt; TimeStamp = me.TimeStamp;
 			return me;
@@ -135,9 +140,6 @@ function User(eventEmitter,request){
 		getCordinates(data.location.id);
 	}
 }
-
-
-//
 
 
 

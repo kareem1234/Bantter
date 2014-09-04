@@ -12,7 +12,7 @@ function EventEmitter(){
 			console.log('error emmited unregistered event: '+ eventName);
 		else{
 			//console.log('event emmitted: '+eventName);
-			if(!data){
+			if(data === null || data === undefined){
 				var m = new CustomEvent (eventName);
   				document.dispatchEvent(m);
 			}else{

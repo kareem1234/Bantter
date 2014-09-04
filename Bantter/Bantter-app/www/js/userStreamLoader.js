@@ -4,7 +4,7 @@ function UserStreamLoader(eventEmitter,Request){
 	var idHash = {};
 	var userStream = new Array();
 	var userBackup  = new Array();
-	var _time = 0;
+	var _time = 1;
 	var userRange = {};
 	var maxRange = 10;
 	var onUserAddedCount = 0;
@@ -13,15 +13,19 @@ function UserStreamLoader(eventEmitter,Request){
 		window.localStorage.setItem("userStreamLoader_userBackup",JSON.stringify(userBackup));
 	}
 	this.load = function(){
-		userStream = userStream.concat(JSON.parse(window.localStorage.getItem("userStreamLoader_userStream")));
-		userBackup = userBackup.concat(JSON.parse(window.localStorage.getItem("userStreamLoader_userBackup")));
+		var newStream = JSON.parse(window.localStorage.getItem("userStreamLoader_userStream"));
+		if(newStream != null)
+			userStream = userStream.concat(newStream);
+		var newBackup = JSON.parse(window.localStorage.getItem("userStreamLoader_userBackup"));
+		if(newBackup != null)
+			userBackup = userBackup.concat(newBackup);
 	}
 	// when request come in call this function an addUsers
 	// to appropiate users
 	this.addUsers = function(users){
 		onUserAddedCount++;
 		for(var i=0; i<users.length; i++){
-			if(checkHash(users[i].FbId) && checkRange(user[i]))
+			if(checkHash(users[i].FbId) && checkRange(users[i]))
 				userStream.push(users[i]);
 			else
 				userBackup.push(users[i]);
@@ -36,8 +40,10 @@ function UserStreamLoader(eventEmitter,Request){
 		}
 		if(userStream.length > 0)
 			E.EMIT("userStream_ready");
-		else
+		else{
+			console.log(userStream.length + " therefore not rdy");
 			E.EMIT("userStream_notReady");
+		}
 		
 	}
 	// make the request to get users
@@ -49,7 +55,7 @@ function UserStreamLoader(eventEmitter,Request){
 			range :  maxRange
 		});
 		R.request('findUsers',{
-			time:  0,
+			time:  1,
 			range :  100
 		});
 	}

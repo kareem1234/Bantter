@@ -6,6 +6,8 @@ function View(EventEmitter){
 	var myLikesSet = false;
 	var likersSet = false;
 	var prevSelected = undefined;
+	var playedOnce = false;
+	this.streamLoading = false;
 	var vidUrl = 'https://s3.amazonaws.com/bantter-downloads/';
 	this.currentView ="";
 	this.init = function(){
@@ -13,7 +15,7 @@ function View(EventEmitter){
 		$(".close").bind("tap",function(){
 			$(".modal").modal("hide");
 		});
-		$("#mainPage_likes_controlCont").bind("tap",function(){
+		$("#mainPage_likes_controlBut").bind("tap",function(){
 			E.EMIT("view_likesControll_taped");
 		})
 	}
@@ -29,22 +31,34 @@ function View(EventEmitter){
 				$(this).get(0).play();
 			else
 				$(this).get(0).pause();
+		}).bind("ended",function(){
+			playedOnce = true;
+			enableThumbs();
 		});
 	}
 	this.setLoadingView = function(){
-		console.log("setting loadingView");
 		that.currentView='loadingView';
 		$("#loginPage").addClass("notActive");
 		$("#mainPage").addClass("notActive");
 		$("#loadingPage").removeClass("notActive");
-		console.log("loading view set");
 	}
 	this.streamViewDisplayNext = function(user){
 		$("#mainPage_selfies_name").text(user.Name+" "+user.Age);
 		$("#mainPage_selfies_city").text(user.City);
-		var vid = $("#mainPage_selfies_vid");
-		vid.get(0).src= vidUrl+user.Refs[0].Url;
+		var vid = $("#mainPage_selfies_selfieVid");
+		vid.get(0).src=user.refs[0].Url;
+		playedOnce = false;
 		vid.get(0).play();
+		disableThumbs();
+
+	}
+	function disableThumbs(){
+		$("#mainPage_selfies_thumbsUp").addClass("disabled");
+		$("#mainPage_selfies_thumbsDown").addClass("disabled");
+	}
+	function enableThumbs(){
+		$("#mainPage_selfies_thumbsUp").removeClass("disabled");
+		$("#mainPage_selfies_thumbsDown").removeClass("disabled");
 	}
 	this.displayInfo = function(text){
 		$("#modal-title2").html(text);
@@ -55,20 +69,27 @@ function View(EventEmitter){
 
 	}
 	this.streamViewRemoveLoading = function(){
+		that.streamLoading = false;
 		$(".spinner").addClass("notActive");
 		$("#mainPage_selfies_thumbsUp").removeClass("disabled");
 		$("#mainPage_selfies_thumbsDown").removeClass("disabled");
 	}
 	this.streamViewDisplayLoading = function(){
+		that.streamLoading = true;
 		$(".spinner").removeClass("notActive");
 		$("#mainPage_selfies_thumbsUp").addClass("disabled");
 		$("#mainPage_selfies_thumbsDown").addClass("disabled");
 	}
 	this.setUserViewPopUp = function(user){
-		$("#modal-title2").text(user.Name);
+		console.dir(user);
+		$("#modal-title1").text(user.Name);
 		var vid = $("#videoPopUp");
-		vid.get(0).src= vidUrl+user.Refs[0].Url;
+		if(that.currentView ==="inboxView")
+			vid.get(0).src=user.refs.Url;
+		else
+			vid.get(0).src=user.refs[0].Url;
 		vid.get(0).play();
+		$("#videoPopUpModal").modal('toggle');
 	}
 	this.setLoginView = function(loginFunc){
 		that.currentView='loginView';
@@ -95,6 +116,7 @@ function View(EventEmitter){
 		}
 	}
 	this.setStreamView = function(user){
+		that.setMenu();
 		that.currentView='streamView';
 		$("#loginPage").addClass("notActive");
 		$("#loadingPage").addClass("notActive");
@@ -109,13 +131,15 @@ function View(EventEmitter){
 			if( ! $(this).hasClass('disabled'))
 				E.EMIT("streamView_thumbsDown_taped");
 		});
-		$("#mainPage_selfies_name").text(user.Name);
+		$("#mainPage_selfies_name").text(user.Name+" "+user.Age);
 		$("#mainPage_selfies_city").text(user.City);
 		var vid = $("#mainPage_selfies_selfieVid");
-		vid.attr('src',user.Refs[0].Url);
+		vid.attr('src',user.refs[0].Url);
 		vid.get(0).play();
+		playedOnce = false;
+		disableThumbs();
 	}
-	this.displayPeopleLoading = function(){
+	this.displayPeopleLoading = function(inbox){
 		that.currentView='peopleLoading';
 		$("#loginPage").addClass("notActive");
 		$("#loadingPage").addClass("notActive");
@@ -128,13 +152,15 @@ function View(EventEmitter){
 		//$(".spinner3").addClass("notActive");
 
 				// adding to view
+		if(!inbox)
+			$("#mainPage_likes_controlCont").removeClass("notActive");
 		$("#mainPage").removeClass("notActive");
 		$("#mainPage_people").removeClass("notActive");
 		$(".spinner3").removeClass("notActive");
 	}
 	this.updateInboxView = function(){
 		that.currentView='inboxView';
-
+		that.setMenu();
 		// removing from view
 		$("#loginPage").addClass("notActive");
 		$("#loadingPage").addClass("notActive");
@@ -151,11 +177,11 @@ function View(EventEmitter){
 		$("#mainPage_people_inbox").removeClass("notActive");
 
 		//
-		$("#mainPage_likes_menuTitle").text("My Inbox");
+		$("#mainPage_likes_menuTitle").html("My Inbox");
 	}
 	this.updateMyLikesView = function(){
 		that.currentView ='myLikesView';
-
+		that.setMenu();
 
 		// removing from view
 		$("#loginPage").addClass("notActive");
@@ -167,17 +193,18 @@ function View(EventEmitter){
 		$(".spinner3").addClass("notActive");
 
 				// adding to view
+		$("#mainPage_likes_controlCont").removeClass("notActive");
 		$("#mainPage").removeClass("notActive");
 		$("#mainPage_people_menu").removeClass("notActive");
 		$("#mainPage_people").removeClass("notActive");
 		$("#mainPage_people_myLikes").removeClass("notActive");
 
 		//
-		$("#mainPage_likes_menuTitle").text("My Likes");
+		$("#mainPage_likes_menuTitle").html("My Likes");
 	}
 	this.updateLikersView = function(){
 		that.currentView='likersView';
-
+		that.setMenu();
 		// removing from view
 		$("#loginPage").addClass("notActive");
 		$("#loadingPage").addClass("notActive");
@@ -188,18 +215,19 @@ function View(EventEmitter){
 		$(".spinner3").addClass("notActive");
 
 				// adding to view
+		$("#mainPage_likes_controlCont").removeClass("notActive");
 		$("#mainPage").removeClass("notActive");
 		$("#mainPage_people_menu").removeClass("notActive");
 		$("#mainPage_people").removeClass("notActive");
 		$("#mainPage_people_likers").removeClass("notActive");
 
 		//
-		$("#mainPage_likes_menuTitle").text("People who like me");
+		$("#mainPage_likes_menuTitle").html("My fans");
 	}
 	this.setInboxView = function(inboxUsers){
 		if(!inboxSet){
 			inboxSet = true;
-			updateInboxView();
+			that.updateInboxView();
 			for(var i = 0; i<inboxUsers.length;i++){
 				var likesRowDiv = document.createElement("div");
 				likesRowDiv.className = "likesRow row row-xs-height";
@@ -209,47 +237,60 @@ function View(EventEmitter){
 				picDivImg.className ="mainPage_likes_profilePic";
 				picDivImg.src="http://graph.facebook.com/" + inboxUsers[i].FbId+"/picture?type=square";
 				var nameDiv = document.createElement("div");
-				nameDiv.className = "col-xs-9 col-xs-height col-top";
+				nameDiv.className = "col-xs-7 col-xs-height col-top";
 				nameDiv.innerHTML = inboxUsers[i].Name;
+				var iconDiv = document.createElement("div");
+				iconDiv.className ="col-xs-2 col-xs-height col-top";
+				if(that.mediaLoader.checkViewable(inboxUsers[i].refs.Url)){
+					var iconImage = document.createElement("img");
+					iconImage.className ="newInboxIcon";
+					iconImage.src ="./img/starIcon.jpg";
+					iconDiv.appendChild(iconImage);
+				}
 				picDiv.appendChild(picDivImg);
 				likesRowDiv.appendChild(picDiv);
 				likesRowDiv.appendChild(nameDiv);
-				document.getElementById("mainPage_likes_inbox").appendChild(likesRowDiv);
+				likesRowDiv.appendChild(iconDiv);
+				document.getElementById("mainPage_people_inbox").appendChild(likesRowDiv);
 			}
-			$(".likesRow").bind("tap",function(){
+			$(".likesRow").bind("tap",function(e){
+				e.preventDefault();
 				if(prevSelected)
 					prevSelected.removeClass("selectedLikesRow");
 				prevSelected = $(this);
 				prevSelected.addClass("selectedLikesRow");
 				var index = prevSelected.index();
-				if(that.mediaLoader.checkViewable(inboxUsers[index].InboxRef.Url)){
-					var actionBut1 = $("#mainPage_likes_menuAction1");
+				var actionBut1 = $("#mainPage_likes_menuAction1");
+				if(that.mediaLoader.checkViewable(inboxUsers[index].refs.Url)){
 					actionBut1.text("View");
-					actionBut1.unbind("tap").bind("tap",function(){
-						E.EMIT("inboxView_view",inboxUsers[index]);
+					actionBut1.unbind("tap").bind("tap",function(e){
+						e.preventDefault();
+						E.EMIT("inboxView_view",index);
 					});
+				}else{
+					actionBut1.text(" ");
 				}
 				var actionBut = $("#mainPage_likes_menuAction2");
-				actionBut.unbind("tap").bind("tap",function(){
-					E.EMIT("inboxView_reply",prevSelected.index());
+				actionBut.unbind("tap").bind("tap",function(e){
+					e.preventDefault();
+					E.EMIT("inboxView_reply",index);
 				});
-				actionBut.text("Reply");
-			
+				actionBut.text("Reply");		
 			});
 		}
 		else
-			updateInboxView();
+			that.updateInboxView();
 	}
 	this.setMyLikesView = function(){
 		if(!myLikesSet){
 			myLikesSet = true;
-			updateMyLikesView();
+			that.updateMyLikesView();
 			$("#mainPage_likes_people").empty().on('scroll',checkScroll);
 			for(var i = 0; i < that.mediaLoader.myLikes.length; i++){
 				var likesRowDiv = document.createElement("div");
 				likesRowDiv.className = "likesRow row row-xs-height";
 				if(that.mediaLoader.myLikes[i].refs === undefined)
-						likesRowDiv.addClass("disabled");
+						likesRowDiv.className ="disabled";
 				var picDiv = document.createElement("div");
 				picDiv.className = "col-xs-3 col-xs-height col-top";
 				var picDivImg = document.createElement("img");
@@ -261,9 +302,10 @@ function View(EventEmitter){
 				picDiv.appendChild(picDivImg);
 				likesRowDiv.appendChild(picDiv);
 				likesRowDiv.appendChild(nameDiv);
-				document.getElementById("mainPage_likes_myLikes").appendChild(likesRowDiv);
+				document.getElementById("mainPage_people_myLikes").appendChild(likesRowDiv);
 			}
-			$(".likesRow").bind("tap",function(){
+			$(".likesRow").bind("tap",function(e){
+				e.preventDefault();
 				if(prevSelected)
 					prevSelected.removeClass("selectedLikesRow");
 				prevSelected = $(this);
@@ -273,18 +315,20 @@ function View(EventEmitter){
 				var index = prevSelected.index();
 				var actionBut1 = $("#mainPage_likes_menuAction1");
 				actionBut1.text("View");
-				actionBut1.unbind("tap").bind("tap",function(){
-						E.EMIT("myLikesView_view",that.mediaLoader.myLikes[index]);
+				actionBut1.unbind("tap").bind("tap",function(e){
+						e.preventDefault();
+						E.EMIT("myLikesView_view",index);
 				});
 				var actionBut = $("#mainPage_likes_menuAction2");
-				actionBut.unbind("tap").bind("tap",function(){
-					E.EMIT("myLikesView_message",prevSelected.index());
+				actionBut.unbind("tap").bind("tap",function(e){
+					e.preventDefault();
+					E.EMIT("myLikesView_message",index);
 				});
 				actionBut.text("Message");		
 			});
 		}
 		else
-			updateMyLikesView();
+			that.updateMyLikesView();
 	}
 	this.enableRow = function(index){
 		$(".likesRow:eq("+index+")").removeClass("disabled");
@@ -292,8 +336,8 @@ function View(EventEmitter){
 	this.setLikersView = function(){
 		if(!likersSet){
 			likersSet = true;
-			updateLikersView();
-			$("#mainPage_likes_people").empty().bind(scroll,checkScroll);
+			that.updateLikersView();
+			$("#mainPage_likes_people").empty().bind("scroll",checkScroll);
 			for(var i = 0; i < that.mediaLoader.likers.length; i++){
 				var likesRowDiv = document.createElement("div");
 				likesRowDiv.className = "likesRow row row-xs-height";
@@ -310,9 +354,10 @@ function View(EventEmitter){
 				picDiv.appendChild(picDivImg);
 				likesRowDiv.appendChild(picDiv);
 				likesRowDiv.appendChild(nameDiv);
-				document.getElementById("mainPage_likes_likers").appendChild(likesRowDiv);
+				document.getElementById("mainPage_people_likers").appendChild(likesRowDiv);
 			}
-			$(".likesRow").bind("tap",function(){
+			$(".likesRow").bind("tap",function(e){
+				e.preventDefault();
 				if(prevSelected)
 					prevSelected.removeClass("selectedLikesRow");
 				prevSelected = $(this);
@@ -322,18 +367,20 @@ function View(EventEmitter){
 				var index = prevSelected.index();
 				var actionBut1 = $("#mainPage_likes_menuAction1");
 				actionBut1.text("View");
-				actionBut1.unbind("tap").bind("tap",function(){
-						E.EMIT("likersView_view",that.mediaLoader.myLikes[index]);
+				actionBut1.unbind("tap").bind("tap",function(e){
+						e.preventDefault();
+						E.EMIT("likersView_view",index);
 				});
 				var actionBut = $("#mainPage_likes_menuAction2");
-				actionBut.unbind("tap").bind("tap",function(){
-					E.EMIT("likersView_message",prevSelected.index());
+				actionBut.unbind("tap").bind("tap",function(e){
+					e.preventDefault();
+					E.EMIT("likersView_message",index);
 				});
 				actionBut.text("Message");		
 			});
 		}
 		else
-			updateLikersView();
+			that.updateLikersView();
 	}
 	function checkScroll(e){
 		var elem = $(e.currentTarget);

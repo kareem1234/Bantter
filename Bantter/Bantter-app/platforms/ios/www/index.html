@@ -6,7 +6,7 @@
         <meta name="format-detection" content="telephone=no" />
         <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
         <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
-        <link href='http://fonts.googleapis.com/css?family=Comfortaa:400,700' rel='stylesheet' type='text/css'>
+        <link href='css/fonts.googleapis.com/css?family=Comfortaa:400,700' rel='stylesheet' type='text/css'>
         <link rel="stylesheet" type="text/css" href="libs/bootstrap.min.css" />
         <link rel="stylesheet" type="text/css" href="css/index.css" />
         <title>Bantter</title>
@@ -27,12 +27,11 @@
             <div class="modal-dialog">
                 <div class="modal-content videoPopUpContent">
                     <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                        <h4 id="modal-title1">Kareem's video</h4>
+                        <button type="button" class="close" ><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                        <h4 id="modal-title1"></h4>
                     </div>
                     <div class="modal-body">
-                        <video  autoplay id='videoPopUp' >
-                            <source src="https://s3-us-west-2.amazonaws.com/www.bantter.com/backgroundVideo.mp4" type="video/mp4">
+                        <video webkit-playsinline   id='videoPopUp' >
                         </video>
                     </div>
                 </div><!-- /.modal-content -->
@@ -42,7 +41,7 @@
             <div class="modal-dialog">
                 <div class="modal-content infoPopUpContent">
                     <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                        <button type="button" class="close" ><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
                         <p id="modal-title2">Kareem's video</p>
                     </div>
                 </div><!-- /.modal-content -->
@@ -82,8 +81,7 @@
                 </div>
                 <div  id="mainPage_selfies"class =" row row-xs-height">
                     <div class ="mainPage_selfies_contentPane row row-xs-height">
-                        <video  autoplay id='mainPage_selfies_selfieVid' >
-                            <source src="https://s3-us-west-2.amazonaws.com/www.bantter.com/backgroundVideo.mp4" type="video/mp4">
+                        <video  webkit-playsinline  id='mainPage_selfies_selfieVid' >
                         </video>
                     </div>
                     <div class ="mainPage_selfies_contentPane row row-xs-height">
@@ -92,16 +90,16 @@
                             <div id="mainPage_selfies_city"class="col-xs-6 col-xs-height col-top">Ottawa</div>
                         </div>
                         <div class ="row row-xs-height">
-                            <div class="col-xs-6 col-xs-height col-top disabled">
+                            <div class="col-xs-6 col-xs-height col-top">
                                 <img id="mainPage_selfies_thumbsDown"src="./img/thumbsDown.png"/>
                             </div>
-                            <div class="col-xs-6 col-xs-height col-top disabled">
+                            <div class="col-xs-6 col-xs-height col-top">
                                 <img id="mainPage_selfies_thumbsUp" src="./img/thumbsUp.png"/>
                             </div>
                         </div>
                         <div class = "row row-xs-height">
                             <div class="col-xs-12 col-xs-height col-top">
-                                <div class=" spinner">
+                                <div class=" spinner notActive">
                                     <div class="double-bounce1"></div>
                                     <div class="double-bounce2"></div>
                                 </div>                               
@@ -110,14 +108,16 @@
                     </div>                                      
                 </div>
                 <div id="mainPage_people" class =" notActive row row-xs-height">
-                    <div id="mainPage_likes_controlCont" class =" row row-xs-height">
+                    <div id="mainPage_likes_controlCont" class =" notActive row row-xs-height">
                         <button type="button" id="mainPage_likes_controlBut"class="btn  btn-primary">
+                        </button>
                     </div>
                     <div class=" notActive spinner3">
                         <div class="double-bounce1"></div>
                          <div class="double-bounce2"></div>
                     </div>                     
                     <div id="mainPage_people_myLikes" class ="  mainPage_likesDiv row row-xs-height">
+                        <!--
                         <div class =" likesRow row row-xs-height">
                             <div class="col-xs-3 col-xs-height col-top">
                                 <img class="mainPage_likes_profilePic"src="http://graph.facebook.com/67563683055/picture?type=square"/>
@@ -125,22 +125,28 @@
                             <div class="col-xs-9 col-xs-height col-top">
                                 Jhon S.
                             </div>
-                        </div>
+                        -->
                     </div>
                     <div id="mainPage_people_likers" class ="notActive mainPage_likesDiv row row-xs-height">
+                        <!--
                         <div class ="likesRow row row-xs-height">
                             <div class="col-xs-3 col-xs-height col-top">
                                 <img class="mainPage_likes_profilePic"src="http://graph.facebook.com/67563683055/picture?type=square"/>
+                            
                             </div>
                             <div class="col-xs-9 col-xs-height col-top">
                                 Jhon F.
                             </div>
                         </div>
+                    -->
                     </div> 
                     <div id="mainPage_people_inbox" class ="notActive mainPage_likesDiv row row-xs-height">
+                                <!--
+
                         <div class ="likesRow row row-xs-height">
                             <div class="col-xs-3 col-xs-height col-top">
                                 <img class="mainPage_likes_profilePic"src="http://graph.facebook.com/67563683055/picture?type=square"/>
+                           
                             </div>
                             <div class="col-xs-7 col-xs-height col-top">
                                 Jhon F.
@@ -149,25 +155,31 @@
                                 <img class="newInboxIcon" src="./img/starIcon.jpg">
                             </div>
                         </div>
+                         -->
                     </div>                      
-                    <div id="mainPage_people_menu" class="row row-xs-height">
+                    <div id="mainPage_people_menu" class="notActive row row-xs-height">
                         <div id="mainPage_likes_menuTitle"class="col-xs-6 col-xs-height col-top">
-                            People I like
                         </div>
+                
                         <div id="mainPage_likes_menuAction1"class="col-xs-2 col-xs-height col-top">
-                            <img id ="noIcon" src="./img/noIcon.jpg">
+                           <!-- <img id ="noIcon" src="./img/noIcon.jpg"> -->
                         </div>
+                
                         <div id="mainPage_likes_menuAction2"class="col-xs-2 col-xs-height col-top">
-                            Message
                         </div>
                     </div>
                 </div>
+
+
+                <!--  container-->
             </div>
         </div>
         <div id="fb-root"></div>
     </body>
     <script type="text/javascript"  src="phonegap.js"></script>
+    <!--
     <script type="text/javascript"  src="facebookConnectPlugin.js"></script>
+-->
     <script type ="text/javascript" src="libs/jquery-2.1.1.min.js"></script>
     <script type ="text/javascript" src="libs/bootstrap.min.js"></script>
     <script type ="text/javascript" src ="libs/jquery.mobile.custom.min.js"></script>

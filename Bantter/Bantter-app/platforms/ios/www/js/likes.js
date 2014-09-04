@@ -9,7 +9,9 @@ function Likes(eventEmitter, Request){
 		window.localStorage.setItem("likes_likesArray",JSON.stringify(likes));
 	}
 	this.load = function(){
-		likes = JSON.parse(window.localStorage.getItem("likes_likesArray"));
+		var newLikes = JSON.parse(window.localStorage.getItem("likes_likesArray"));
+		if(newLikes)
+			likes = likes.concat(newLikes);
 	}
 	this.addLike = function(toId){
 		var like = {

@@ -16,8 +16,8 @@ function errCallback(res){
 	return func;
 }
 exports.insertUser = function(req,res){
-	console.dir(req.body);
-	var user = req.body
+	var user = req.body;
+	convertPropsToNum(user);
 	var callback = function(){
 			res.end();
 	};
@@ -79,8 +79,7 @@ exports.findWhoILike = function(req, res){
 
 exports.getVideoRefs = function(req,res){
 	convertPropsToNum(req.query);
-	db.findVidRefs(req.query.FromFbId,function(docs){
-		console.dir(docs);
+	db.findVidRefs(req.query.FromFbId,function(docs){;
 		res.json(docs);
 	},errCallback(res));
 }
@@ -90,7 +89,7 @@ exports.getInboxRefs = function(req,res){
 		res.json(docs);
 	};
 	checkPermision(req.query.Id,req.query.FbId,res,function(){
-		db.findInboxRef(req.query.FbId,callback,errCallback(res));
+		db.findInboxRefs(req.query.FbId,callback,errCallback(res));
 	});
 }
 returnSignedPolicy = function(vidRef, res){
@@ -117,9 +116,8 @@ exports.getPolicy = function(req,res){
 }
 convertPropsToNum = function(user){
 	user.FbId = Number(user.FbId);
-	user.Id = Number(user.Id);
 	user.Lat = Number(user.Lat);
-	user.Lgt = Number(user.lgt);
+	user.Lgt = Number(user.Lgt);
 	user.Age = Number(user.Age);
 	user.TimeStamp = Number(user.TimeStamp);
 	if(user.Range)
@@ -129,37 +127,23 @@ convertPropsToNum = function(user){
 	if(user.FromFbId)
 		user.FromFbId = Number(user.FromFbId);
 	if(user.Like){
-		console.log("printing like")
-		console.dir( typeof(user.Like[0].From));
-		for(var i =0; i< user.Like.length; i++){
-			if(typeof(user.Like[i].From) != 'number')
-				user.Like[i].From = Number(user.Like.From);
-			if(typeof(user.Like[i].From) != 'number')
-				user.Like[i].To = Number(user.Like.To);
+		for(var i =0;i<user.Like.length; i++){
+			user.Like[i].From = Number(user.Like[i].From);
+			user.Like[i].To = Number(user.Like[i].To);
 		}
 	}
-		console.dir(user.Like);
-
-
 
 }
 checkPermision = function(userId, fbId,res, callback){
-	console.log('userId:'+userId+" fbId"+fbId);
-	console.log("checking if ids are numbers: " +typeof(fbId));
-	console.log("checking permission");
 	db.getIdPair(userId,function(docs){
 		if(docs.length == 0){
-				console.log(docs.length);
-				console.log("no matching id found")
 				var er = errCallback(res);
 				er();
 			}
 		else if(docs[0].FbId === fbId  && docs[0].UserId === userId){
-				console.log("id pair matches");
 				callback(true);
 			}
 		else {
-			console.log("ids do not match");
 			var er = errCallback(res);
 			er();
 		}

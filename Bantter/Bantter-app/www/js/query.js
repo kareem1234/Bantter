@@ -6,16 +6,13 @@ function Request(EventEmitter){
 	var that = this;
 	var timeout = 1000;
 	var tries = 3;
-
 	this.setUser = function(user){
 		me = user;
-		console.dir(me);
 	}
 	this.getUser = function(){
 		return me;
 	}
 	function makeRequest(Type,URL,Data){
-		console.dir(Data);
 		$.ajax({
 			url: domain+URL,
 			type: Type,
@@ -25,7 +22,7 @@ function Request(EventEmitter){
 				tries = 0;
 				timeout = 2000;
 			}
-			E.EMIT("complete"+URL,response);
+			E.EMIT("complete"+URL,{res:response,req:Data});
 		}).fail(function(error){
 			tries ++;
 			if(tries %4 == 0)
@@ -40,7 +37,6 @@ function Request(EventEmitter){
 	}
 	this.request = function(string,data){
 		console.log("attempting to request: "+string);
-		console.log("my status is: "+ me);
 		switch(string){
 			case "insertLike" :
 				me.Like = data;
@@ -64,7 +60,8 @@ function Request(EventEmitter){
 					makeRequest("GET","/"+string,me);
 					break;
 			case  'getVideoRefs' :
-				   me.FromFbId = data;
+				   me.FromFbId = data.FromFbId;
+				   me.Type = data.Type;
 				   makeRequest("GET","/"+string,me);
 				   break;
 			case  "findUsers" :

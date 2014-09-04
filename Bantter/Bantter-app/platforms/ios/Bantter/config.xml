@@ -48,8 +48,9 @@
     </gap:plugin>
     <gap:plugin name="nl.x-services.plugins.videocaptureplus" version="1.2" />
     <preference name="permissions" value="none" />
+    <preference name="AllowInlineMediaPlayback" value="Yes" />
     <preference name="phonegap-version" value="3.5.0" />
-    <preference name="orientation" value="default" />
+    <preference name="orientation" value="potrait" />
     <preference name="target-device" value="universal" />
     <preference name="fullscreen" value="true" />
     <preference name="webviewbounce" value="true" />

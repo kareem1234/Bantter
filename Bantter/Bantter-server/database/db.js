@@ -66,8 +66,7 @@ exports.insertIdPair = function(fbId, userId,callback,errcallback){
 }
 // find a userId/fbId matching from idpairs collection
 exports.getIdPair = function(userId, callback,errcallback){
-	idPairs.find({"UserId": Number(userId)}).toArray(function(err,docs){
-		console.log(docs);
+	idPairs.find({UserId: userId}).toArray(function(err,docs){
 		if(err)errcallback(err);
 		else callback(docs);
 	});
@@ -75,16 +74,12 @@ exports.getIdPair = function(userId, callback,errcallback){
 // find users from specified collection within a certain latitude and longitude range
 // limit to 500
 exports.findUsers = function(query,User,Range,Time,callback,errcallback){
-	console.log(Number(User.Lat) - Number(Range));
-	console.log(Number(User.Lat) + Number(Range));
 	var options={ Lat: {$lte: (Number(User.Lat) + Number(Range)),$gte: (Number(User.Lat) - Number(Range))},
 				  Lgt: {$lte: (Number(User.Lgt) + Number(Range)),$gte: (Number(User.Lgt) - Number(Range))},
 				  TimeStamp: {$gte: Number(Time) }
 				};
 	for(var attr in query){ options[attr] = query[attr];}
-	console.log(options);
 	people.find(options).limit(50).toArray(function(err,docs){
-		console.log(docs.length);
 		if(err){console.log(err); errcallback(err);}
 		else{
 			docs.sort(function(a,b){
@@ -105,18 +100,18 @@ exports.insertVidRef = function(vRef,callback,errcallback){
 }
 // find videoReferences//selfies belonging to specified facebook id
 exports.findVidRefs = function(fbId,callback,errcallback){
-	console.log(fbId);
-	console.log(typeof(fbId));
-	vidRefs.find({FbId: fbId, To:"All"}).toArray(function(err,refs){
+	vidRefs.find({FbId: fbId, To:"ALL"}).toArray(function(err,refs){
 		if(err) errcallback();
-		else callback(refs);
+		else{ 
+			callback(refs);
+		}
 	});
 }
 // find all videoReferences sent to a specific FbId
 exports.findInboxRefs = function(FbId,callback,errcallback){
-	vidRefs.find({to: FbId}).toArray(function(err,docs){
+	vidRefs.find({To: FbId}).toArray(function(err,docs){
 		if(err) errcallback();
-		else callback(docs);
+		else{console.dir(docs); callback(docs);}
 	});
 }
 // return users who were liked by the specified fbid
@@ -141,19 +136,22 @@ exports.findWhoILike = function(query,FbId,callback,errcallback){
 }
 // return the users who sent messages to the specified fbid
 exports.findInboxUsers = function(query,FbId,callback,errcallback){
-	vidRefs.find({to: FbId}).toArray(function(err,refArray){
+	console.log(typeof(FbId));
+	vidRefs.find({To: FbId}).toArray(function(err,refArray){
+		console.log("printing ref array");
+		console.dir(refArray);
 		for(var i = 0; i< refArray.length; i++)
 			refArray[i] = refArray[i].FbId;
-		var count = 0;
-		var errCount = 0;
-		var results = new Array();
 		var returnFunc = function(err,users){
 		if(err)
 			errcallback(err);
-		else
+		else{
+			console.log("printing inbox users");
+			console.dir(users);
 			callback(users);
+		}
 		};
-		query.FbId= { $in : tempArr};
+		query.FbId= { $in : refArray};
 		people.find(query).toArray(returnFunc);
 		
 	});

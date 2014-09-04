@@ -9,22 +9,21 @@ function Controller(){
     this.load = function(){
         that.view.setLoadingView();
         that.likes.load();
-        that.mediaLoader.load();
         that.mediaCapture.load();
+        that.mediaLoader.load();
         var userStatus = that.user.load();
         onUserLoad(userStatus);
 
      }
     function onUserLoad(userStatus){
-        console.log("has user logged in before:" +userStatus);
         if(!userStatus)
             that.view.setLoginView(that.user.login);
         else{
             that.request.setUser(userStatus);
-            if(that.mediaLoader.readyStatus)
-                that.view.setStreamView(that.mediaLoader.getNext());
-            else
+            that.mediaLoader.start();
+            if(that.mediaLoader.readyStatus === false){
                 that.view.setLoadingView();
+            }
         }
     }
     // call all setup methods
@@ -44,16 +43,18 @@ function Controller(){
         initViewCallbacks();
     }
     this.setSaveInterval = function(){
-        setTimeout(function(){
+        /*
+        setInterval(function(){
+            console.log("saving to localStorage");
             that.likes.save();
             that.user.save();
             that.mediaLoader.save();
             that.mediaCapture.save();
-        },1000*10);
+        },1000*20);
+        */
     }
     function initModelCallbacks(){
         that.event.LISTEN("signedUp",function(){
-            console.log("user has signed up");
             that.view.setLoadingView();
             that.user.getFbData();
             that.view.displayInfo('Fetching facebook data');
@@ -67,24 +68,28 @@ function Controller(){
             that.request.setUser(usr);
             console.log("controller inserting user");
             that.request.request('insertUser');
-            //that.mediaLoader.start();
+            that.mediaLoader.start();
             that.view.displayInfo("finding people in your area");
         });
         that.event.LISTEN("media_ready",function(){
             if(that.view.currentView ==="loadingView"){
-                that.mediaLoader.setMode("findWhoILike");
+                that.mediaLoader.setMode("findUsers");
                 currentUser = that.mediaLoader.getNext();
                 that.view.setStreamView(currentUser);
             }
-            else if(that.view.currentView ==='streamView')
-              streamViewRemoveLoading();
+            else if(that.view.currentView ==='streamView'){
+              if(that.view.streamLoading){
+                that.view.removeStreamLoading();
+                var nextUser = that.mediaLoader.getNext();
+                that.view.streamViewDisplayNext(nextUser);
+                currentUser = nextUser;
+              }
+            }
         });
         that.event.LISTEN("media_notReady",function(){
-            if(that.view.currentView==="streamView")
-                that.view.streamViewDisplayLoading();
+            
         });
         that.event.LISTEN("userStream_notReady",function(){
-            console.log("userStream not ready");
         });
         that.event.LISTEN("userStream_ready",function(){
             that.mediaLoader.onStreamReady();
@@ -104,28 +109,44 @@ function Controller(){
     }
     function initQueryCallbacks(){
         that.event.LISTEN("complete/insertLike",function(){
-            console.log('likes inserted');
+            //
         });
-        that.event.LISTEN("complete/insertVidRef",function(){
-            that.mediaCapture.onPolicyReturn(data);
+        that.event.LISTEN("complete/insertVidRef",function(data){
+            that.mediaCapture.onPolicyReturn(data.res);
         });
         that.event.LISTEN("complete/insertUser",function(data){
             console.log("user data saved on server");
         });
         that.event.LISTEN("complete/findWhoLikedMe",function(data){
-            that.mediaLoader.onUserLoad(data,"findWhoILikedMe");
+            that.mediaLoader.onUserLoad(data.res,"findWhoLikedMe");
         });
-        that.event.LISTEN("complete/findWhoILike",function(){
-            that.mediaLoader.onUserLoad(data,"findWhoILikedMe");
+        that.event.LISTEN("complete/findWhoILike",function(data){
+            that.mediaLoader.onUserLoad(data.res,"findWhoILike");
         });
         that.event.LISTEN("complete/getVideoRefs",function(data){
-            that.mediaLoader.onRefLoad(data);
+            console.log(data.req.Type);
+            that.mediaLoader.onRefLoad(data.res,data.req.Type);
         });
         that.event.LISTEN("complete/findUsers",function(data){
-            that.mediaLoader.onUserLoad(data,"findUsers");
+            that.mediaLoader.onUserLoad(data.res,"findUsers");
         });
         that.event.LISTEN("complete/getInbox",function(data){
-            that.mediaLoader.onInboxLoad(data);
+            that.mediaLoader.onInboxRefLoad(data.res);
+        });
+        that.event.LISTEN("complete/findInboxUsers",function(data){
+            that.mediaLoader.onUserLoad(data.res,"findInboxUsers");
+        });
+        that.event.LISTEN("media_myLikes_loaded",function(){
+            if(that.waitingFor === "myLikes"){
+                that.waitingFor = undefined;
+                that.view.setMyLikesView();
+            }
+        });
+        that.event.LISTEN("media_likers_loaded",function(){
+            if(that.waitingFor === "likers"){
+                that.waitingFor = undefined;
+                that.view.setLikersView();
+            }
         });
     }
    function initFailCallbacks(){
@@ -144,6 +165,8 @@ function Controller(){
     }
     function initViewCallbacks(){
         that.event.LISTEN("myLikesView_view",function(index){
+            console.log("index is: "+ index);
+            console.dir(that.mediaLoader.myLikes);
             that.view.setUserViewPopUp(that.mediaLoader.myLikes[index]);
         });
         that.event.LISTEN("myLikesView_message",function(index){
@@ -166,6 +189,7 @@ function Controller(){
             if(that.view.currentView ==="myLikesView" || that.view.currentView === "likersView")
                     return;
             else{
+                that.mediaLoader.setMode("myLikes");
                 if(that.mediaLoader.myLikes)
                     that.view.setMyLikesView();
                 else{
@@ -181,8 +205,10 @@ function Controller(){
                 return;
             else{
                 that.view.setStreamView(currentUser);
-                if(!that.mediaLoader.readyStatus)
+                if(!that.mediaLoader.readyStatus){
+                    that.waitingFor = 'findUsers'; 
                     that.view.streamViewDisplayLoading();
+                }
             }
         });
         that.event.LISTEN("viewMenu_inbox_taped",function(){
@@ -193,25 +219,27 @@ function Controller(){
                 if(that.mediaLoader.inboxUsers)
                     that.view.setInboxView(that.mediaLoader.inboxUsers);
                 else{
-                    that.view.displayPeopleLoading();
+                    that.view.displayPeopleLoading('inbox');
                     that.waitingFor = 'inboxUsers';
                 }
             }
         });
         that.event.LISTEN("view_likesControll_taped",function(){
             that.waitingFor = undefined;
-            if(that.view.currentView ==="myLikesView"){
-                if(that.mediaLoader.myLikes)
+            if(that.view.currentView ==="likersView" || that.view.currentView ==="peopleLoading"){
+                if(that.mediaLoader.myLikes){
                     that.view.setMyLikesView();
-                else{
+                    that.mediaLoader.setMode("findWhoILike");
+                }else{
                     that.waitingFor="myLikes";
                     that.view.displayPeopleLoading();
                 }
 
-            }else if(that.view.currentView ==="likersView"){
-                if(that.mediaLoader.likers)
+            }else if(that.view.currentView ==="myLikesView"|| that.view.currentView ==="peopleLoading"){
+                if(that.mediaLoader.likers){
                     that.view.setLikersView();
-                else{
+                    that.mediaLoader.setMode("findWhoLikedMe");
+                }else{
                     that.waitingFor="likers";
                     that.view.displayPeopleLoading();
                 }
@@ -221,32 +249,29 @@ function Controller(){
             that.mediaCapture.getVideo();
         });
         that.event.LISTEN("streamView_thumbsUp_taped",function(){
-            var nextUser = that.mediaLoader.getNext();
-            that.mediaLoader.streamViewDisplayNext(nextUser);
             that.likes.addLike(currentUser.FbId);
-            currentUser = nextUser;
+            var nextUser = that.mediaLoader.getNext();
+            if(nextUser){
+                that.view.streamViewDisplayNext(nextUser);
+                currentUser = nextUser;
+            }else{
+                that.view.streamViewDisplayLoading();
+                that.waitingFor = "findUsers";
+            }
         });
         that.event.LISTEN("streamView_thumbsDown_taped",function(){
-            currentUser = that.mediaLoader.getNext();
-            that.mediaLoader.streamViewDisplayNext(currentUser);
+            var nextUser = that.mediaLoader.getNext();
+            if(nextUser){
+                that.view.streamViewDisplayNext(nextUser);
+                currentUser = nextUser;
+            }else{
+                that.view.streamViewDisplayLoading();
+            }
         });
         that.event.LISTEN("likesView_scrolled",function(){
             that.mediaLoader.callBuffer();
         });
-        that.event.LISTEN("media_myLikes_loaded",function(){
-            if(that.waitingFor === "myLikes"){
-                that.waitingFor = undefined;
-                that.view.setMyLikesView();
-            }
-        });
-        that.event.LISTEN("media_likers_loaded",function(){
-            if(that.waitingFor === "likers"){
-                that.waitingFor = undefined;
-                that.view.setLikersView();
-            }
-        });
     }
-    //that.setup();
 
 // end of declaration
 }
@@ -263,6 +288,8 @@ Controller.prototype.view = new View(Controller.prototype.event);
 
 View.prototype.mediaLoader = Controller.prototype.mediaLoader;
 var c = new Controller();
-window.localStorage.clear();
 document.addEventListener("deviceready",c.setup,false);
+//window.localStorage.clear();
+if(!window.cordova)
+    c.setup();
 

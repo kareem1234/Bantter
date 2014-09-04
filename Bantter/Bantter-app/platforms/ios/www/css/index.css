@@ -2,6 +2,7 @@ html, body {
     height: 100%;
 
 }
+
 .backgroundImage{
 	background-image: url(../img/vacation-selfies-770.jpg);
     background-position: 40% 40%;
@@ -98,12 +99,7 @@ Loading page css styles
 loginPage css styles
 
 */
-#loginPage_vidContainer{
-	position:fixed;
-	width:100%;
-	height: 100%;
-	z-index: -1;
-}
+
 #loginPage_bantterLogo{
 	position:fixed;
 	top: -4%;
@@ -181,12 +177,11 @@ loginPage css styles
 
 #mainPage_selfies_selfieVid{
 	background-color:#00CCFF;
-	height:120%;
+	height:100%;
 	width: 120%;
-	margin-left:-20%;
-	margin-top:-10%;
+	margin-left:-12%;
 }
-#mainPage_selfies_vidCaption{s
+#mainPage_selfies_vidCaption{
 	height:20%;
 	margin-top:-5%;
 	font-size: medium;
@@ -226,11 +221,10 @@ loginPage css styles
 	height:9%;
 }
 .mainPage_likesDiv{
-	height:75%;
+	height:73%;
 	overflow-y:scroll;
 }
 #mainPage_people_menu{
-	font-family: 'Comfortaa', cursive;
 	height:17%;
 	padding-top:15%;
 	font-size:large;
