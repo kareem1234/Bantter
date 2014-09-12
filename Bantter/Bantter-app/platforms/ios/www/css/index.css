@@ -10,6 +10,10 @@ html, body {
 	width:100%;
 	height:100%;
 }
+.menuTab{
+	height:110%;
+	width:33.333%;
+}
 .notActive{
 	display:none;
 }
@@ -25,7 +29,7 @@ html, body {
 }
 .modal { 
     position: fixed; 
-    top: 10%; 
+    top: 30%; 
     width: 110%; 
     margin-left: -5%; 
 }
@@ -140,6 +144,7 @@ loginPage css styles
 }
 #mainPage_tabs{
 	background-color: #00CCFF;
+
 }
 .mainPage_selfies_contentPane{
 	background-color: #00CCFF;
@@ -147,7 +152,7 @@ loginPage css styles
 	text-align: center;
 	font-size:x-large;
 	color:white;
-	font-size:200%;
+	font-size:125%;
 }
 #mainPage_menu_logo{
 	width: 90%;
@@ -176,25 +181,10 @@ loginPage css styles
 }
 
 #mainPage_selfies_selfieVid{
-	background-color:#00CCFF;
+	background-color:#00CCFF !important;
 	height:100%;
 	width: 120%;
 	margin-left:-12%;
-}
-#mainPage_selfies_vidCaption{
-	height:20%;
-	margin-top:-5%;
-	font-size: medium;
-	word-wrap:break-word;
-}
-#mainPage_selfies_vidCaptionBox{
-	font-size:150%;
-	padding-bottom:20%;
-	height:10%;
-	background-color:#00CCFF;
-	text-align: center;
-	margin-top:5%;
-	color:white;
 }
 #mainPage_selfies_thumbsDown{
 	margin-top:30%;

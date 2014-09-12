@@ -16,11 +16,15 @@ function MediaCapture(eventEmitter,request){
 		window.localStorage.setItem("mediaCapture_outBoxHash",JSON.stringify(outBoxHash));
 	}
 	this.load = function(){
-		num = JSON.parse(window.localStorage.getItem("mediaCapture_num"));
-		outBoxHash = JSON.parse(window.localStorage.getItem("mediaCapture_outBoxHash"));
+		var newNum = JSON.parse(window.localStorage.getItem("mediaCapture_num"));
+		if(newNum)
+			num = newNum;
+		var newOutBoxHash = JSON.parse(window.localStorage.getItem("mediaCapture_outBoxHash"));
+		if(newOutBoxHash)
+			outBoxHash = newOutBoxHash;
 	}
 	this.haveIsent = function(id){
-		if(outBoxHash[id])
+		if(outBoxHash[id.toString()])
 			return true;
 		else 
 			return false;
@@ -32,7 +36,7 @@ function MediaCapture(eventEmitter,request){
 	this.getVideo= function(id){
 		if(id){
 			toId = id;
-			outBoxHash[id] = true;
+			outBoxHash[id.toString()] = true;
 		}else
 			recordedSelfie = true;
 		window.plugins.videocaptureplus.captureVideo(function(mediaFiles){

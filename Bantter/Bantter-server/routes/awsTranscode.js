@@ -9,6 +9,7 @@ var pipes = new Array();
 var preset;
 
 function errCallback(res){
+  console.log("error found");
   var func = function(err){
     if(err)
       console.log(err);
@@ -94,6 +95,7 @@ exports.initTranscode = function(callback){
 exports.insertVidRef = function(req,res){
   var ref = req.body.VidRef;
   var user = req.body;
+  delete user.VidRef;
 
   var suc = function(){
       res.end();
@@ -106,10 +108,3 @@ exports.insertVidRef = function(req,res){
   transcode(ref.Url,callback,errCallback(res));
 }
 
-/*
-exports.insertVidRef = function(req,res){
-  db.insertVidRef(req.body.VidRef,function(){
-    res.end();
-  },errCallback(res));
-}
-*/

@@ -46,14 +46,14 @@ exports.insertUser = function (user,callback, errcallback){
 exports.updateUser = function(user,callback,errcallback){
 	var date = new Date().getTime();
 	people.update({FbId:user.FbId},{$set: {TimeStamp: date}},function(err,result){
-		if(err) errcallback();
+		if(err) errcallback(err);
 		else callback();
 	})
 }
 // insert a like object into like collection
 exports.insertLike = function(like,callback,errcallback){
 	likes.insert(like,function(err){
-		if(err) errcallback();
+		if(err) errcallback(err);
 		else callback();
 	});
 }
@@ -94,14 +94,14 @@ exports.findUsers = function(query,User,Range,Time,callback,errcallback){
 //  insert a videoRefence into collection
 exports.insertVidRef = function(vRef,callback,errcallback){
 	vidRefs.insert(vRef,function(err){
-		if(err)errcallback();
+		if(err)errcallback(err);
 		else callback();
 	});
 }
 // find videoReferences//selfies belonging to specified facebook id
 exports.findVidRefs = function(fbId,callback,errcallback){
 	vidRefs.find({FbId: fbId, To:"ALL"}).toArray(function(err,refs){
-		if(err) errcallback();
+		if(err) errcallback(err);
 		else{ 
 			callback(refs);
 		}
@@ -110,7 +110,7 @@ exports.findVidRefs = function(fbId,callback,errcallback){
 // find all videoReferences sent to a specific FbId
 exports.findInboxRefs = function(FbId,callback,errcallback){
 	vidRefs.find({To: FbId}).toArray(function(err,docs){
-		if(err) errcallback();
+		if(err) errcallback(err);
 		else{console.dir(docs); callback(docs);}
 	});
 }

@@ -25,10 +25,10 @@ function MediaLoader(eventEmitter,request){
 			userStream = userStream.concat(newStream);
 		that.likers = JSON.parse(window.localStorage.getItem('media_likers'));
 		that.myLikes = JSON.parse(window.localStorage.getItem('media_myLikes'));
-		var newViewedHash = JSON.parse(window.localStorage.getItem("media_viewedHash"));
+		var newViewedHash = JSON.parse(window.localStorage.getItem("media_inboxViewedHash"));
 		if(newViewedHash)
 			inboxViewedHash = newViewedHash;
-		var newInboxRefHash = JSON.parse(window.localStorage.getItem("media_inboxHash"));
+		var newInboxRefHash = JSON.parse(window.localStorage.getItem("media_inboxRefHash"));
 		if(newInboxRefHash)
 			inboxRefHash = newInboxRefHash;
 		console.log("inbox ref hash is");
@@ -41,6 +41,8 @@ function MediaLoader(eventEmitter,request){
 		window.localStorage.setItem("media_userStream",JSON.stringify(userStream));
 		window.localStorage.setItem("media_myLikes",JSON.stringify(that.myLikes));
 		window.localStorage.setItem("media_likers",JSON.stringify(that.likers));
+		window.localStorage.setItem("media_inboxViewedHash",JSON.stringify(inboxViewedHash));
+		window.localStorage.setItem("media_inboxRefHash",JSON.stringify(inboxRefHash));
 	}
 	//should be called on startup to load cached data
 	// and begin fetching user references
@@ -60,10 +62,16 @@ function MediaLoader(eventEmitter,request){
 	// get mylikes likers and finduser stream
 	this.getAllUsers = function(){
 		usLoader.getUsers();
-		R.request('findWhoILike');
-		R.request('findWhoLikedMe');
-		R.request('getInbox');
-		R.request("findInboxUsers");
+			R.request('findWhoILike');
+			R.request('findWhoLikedMe');
+			R.request('getInbox');
+			R.request("findInboxUsers");
+		setInterval(function(){
+			R.request('findWhoILike');
+			R.request('findWhoLikedMe');
+			R.request('getInbox');
+			R.request("findInboxUsers");
+		},1000*20);
 
 	}
 	// only get the finduser stream

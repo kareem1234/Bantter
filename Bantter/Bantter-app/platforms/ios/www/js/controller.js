@@ -43,7 +43,6 @@ function Controller(){
         initViewCallbacks();
     }
     this.setSaveInterval = function(){
-        /*
         setInterval(function(){
             console.log("saving to localStorage");
             that.likes.save();
@@ -51,7 +50,6 @@ function Controller(){
             that.mediaLoader.save();
             that.mediaCapture.save();
         },1000*20);
-        */
     }
     function initModelCallbacks(){
         that.event.LISTEN("signedUp",function(){
@@ -68,8 +66,7 @@ function Controller(){
             that.request.setUser(usr);
             console.log("controller inserting user");
             that.request.request('insertUser');
-            that.mediaLoader.start();
-            that.view.displayInfo("finding people in your area");
+            that.view.displayInfo("saving data");
         });
         that.event.LISTEN("media_ready",function(){
             if(that.view.currentView ==="loadingView"){
@@ -116,6 +113,8 @@ function Controller(){
         });
         that.event.LISTEN("complete/insertUser",function(data){
             console.log("user data saved on server");
+            that.mediaLoader.start();
+            that.view.displayInfo("finding people in your area");
         });
         that.event.LISTEN("complete/findWhoLikedMe",function(data){
             that.mediaLoader.onUserLoad(data.res,"findWhoLikedMe");
@@ -124,8 +123,7 @@ function Controller(){
             that.mediaLoader.onUserLoad(data.res,"findWhoILike");
         });
         that.event.LISTEN("complete/getVideoRefs",function(data){
-            console.log(data.req.Type);
-            that.mediaLoader.onRefLoad(data.res,data.req.Type);
+            that.mediaLoader.onRefLoad(data.res.Refs,data.res.Type);
         });
         that.event.LISTEN("complete/findUsers",function(data){
             that.mediaLoader.onUserLoad(data.res,"findUsers");
@@ -180,6 +178,8 @@ function Controller(){
         });
         that.event.LISTEN("inboxView_view",function(index){
             that.view.setUserViewPopUp(that.mediaLoader.inboxUsers[index]);
+            that.mediaLoader.markedViewed(that.mediaLoader.inboxUsers[index].refs);
+            that.view.setInboxView(that.mediaLoader.inboxUsers);
         });
         that.event.LISTEN("inboxView_reply",function(index){
              that.mediaCapture.getVideo(that.mediaLoader.inboxUsers[index].Id);           
@@ -289,7 +289,6 @@ Controller.prototype.view = new View(Controller.prototype.event);
 View.prototype.mediaLoader = Controller.prototype.mediaLoader;
 var c = new Controller();
 document.addEventListener("deviceready",c.setup,false);
-//window.localStorage.clear();
 if(!window.cordova)
     c.setup();
 

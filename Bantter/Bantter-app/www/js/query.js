@@ -13,16 +13,19 @@ function Request(EventEmitter){
 		return me;
 	}
 	function makeRequest(Type,URL,Data){
+		const requestData = Data;
+		console.dir(requestData);
 		$.ajax({
 			url: domain+URL,
 			type: Type,
-			data: Data
+			data: requestData
 		}).done(function(response){
 			if(timeout > 0){
 				tries = 0;
 				timeout = 2000;
 			}
-			E.EMIT("complete"+URL,{res:response,req:Data});
+			console.log("request complete"+URL);
+			E.EMIT("complete"+URL,{res:response,req:requestData});
 		}).fail(function(error){
 			tries ++;
 			if(tries %4 == 0)
@@ -30,7 +33,7 @@ function Request(EventEmitter){
 			E.EMIT("failed"+URL,error);
 			/*
 			setTimeout(function(){
-				makeRequest(Type,URL,Data);
+				makeRequest(Type,URL,requestData);
 			},timeout);
 */
 		});

@@ -6,8 +6,10 @@
         <meta name="format-detection" content="telephone=no" />
         <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
         <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
-        <link href='css/fonts.googleapis.com/css?family=Comfortaa:400,700' rel='stylesheet' type='text/css'>
+        <link href='css/googleFontComfortaa' rel='stylesheet' type='text/css'>
         <link rel="stylesheet" type="text/css" href="libs/bootstrap.min.css" />
+        <link rel="stylesheet" type="text/css" href="libs/jquery.mobile.custom.structure.min.css" />
+        <link rel="stylesheet" type="text/css" href="libs/jquery.mobile.custom.theme.min.css" />
         <link rel="stylesheet" type="text/css" href="css/index.css" />
         <title>Bantter</title>
         <script type="text/javascript">
@@ -17,7 +19,7 @@
         </script>
     </head>
     <body class ="">
-        <div id ="loadingPage" class=" container-fluid ">
+        <div data-role="page" id ="loadingPage" class=" container-fluid ">
             <div class=" spinner2">
                 <div class="double-bounce1"></div>
                 <div class="double-bounce2"></div>
@@ -47,12 +49,12 @@
                 </div><!-- /.modal-content -->
             </div><!-- /.modal-dialog -->
         </div><!-- /.modal -->        
-        <div id="loginPage" class="backgroundImage notActive">
+        <div id="loginPage" data-role="page" class="backgroundImage notActive">
             <img  id="loginPage_bantterLogo"src= "./img/bantter2.png"/>
             <p id="loginPage_slogan"> Record your selfie. Watch selfies. Have fun </p>
             <button type="button" id="loginPage_fbLogin"class="btn btn-lg btn-primary">Log in with Facebook</button>
         </div>
-        <div id ="mainPage" class="notActive">
+        <div id ="mainPage" data-role="page" class="notActive">
             <div  class=" container-xs-height">
                 <div id="mainPage_menu" class =" height1 row row-xs-height">
                      <div class="col-xs-9 col-xs-height">

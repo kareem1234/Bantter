@@ -26,7 +26,6 @@ function EventEmitter(){
 	this.LISTEN = function(eventName, callback){
 		EVENTLIST.push(eventName);
 		document.addEventListener(eventName,function(e){
-			console.log('caught the event:'+eventName);
 			callback(e.detail);
 		});
 	};

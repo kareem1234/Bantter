@@ -20,7 +20,7 @@ function View(EventEmitter){
 		})
 	}
 	function initVidControll(){
-		$("#videopPopUp").bind("tap",function(){
+		$("#videoPopUp").bind("tap",function(){
 			if($(this).get(0).paused)
 				$(this).get(0).play();
 			else
@@ -36,14 +36,21 @@ function View(EventEmitter){
 			enableThumbs();
 		});
 	}
+	function clearBox(){
+		$("#mainPage_likes_menuAction1").unbind("tap").text("");
+		$("#mainPage_likes_menuAction2").unbind("tap").text("");
+
+	}
 	this.setLoadingView = function(){
+		$.mobile.changePage( "#loadingPage", { transition: "slideup",allowSamePageTransition: true } );
 		that.currentView='loadingView';
 		$("#loginPage").addClass("notActive");
 		$("#mainPage").addClass("notActive");
 		$("#loadingPage").removeClass("notActive");
 	}
 	this.streamViewDisplayNext = function(user){
-		$("#mainPage_selfies_name").text(user.Name+" "+user.Age);
+		$.mobile.changePage( "#mainPage", { transition: "slideup",allowSamePageTransition: true } );
+		$("#mainPage_selfies_name").text(user.Name+",   "+user.Age);
 		$("#mainPage_selfies_city").text(user.City);
 		var vid = $("#mainPage_selfies_selfieVid");
 		vid.get(0).src=user.refs[0].Url;
@@ -82,8 +89,9 @@ function View(EventEmitter){
 	}
 	this.setUserViewPopUp = function(user){
 		console.dir(user);
-		$("#modal-title1").text(user.Name);
+		$("#modal-title1").text(user.Name+".");
 		var vid = $("#videoPopUp");
+		console.log(that.currentView);
 		if(that.currentView ==="inboxView")
 			vid.get(0).src=user.refs.Url;
 		else
@@ -92,6 +100,7 @@ function View(EventEmitter){
 		$("#videoPopUpModal").modal('toggle');
 	}
 	this.setLoginView = function(loginFunc){
+		$.mobile.changePage( "#loginPage", { transition: "slideup",allowSamePageTransition: true } );
 		that.currentView='loginView';
 		$("#mainPage").addClass("notActive");
 		$("#loadingPage").addClass("notActive");
@@ -116,6 +125,7 @@ function View(EventEmitter){
 		}
 	}
 	this.setStreamView = function(user){
+		$.mobile.changePage( "#mainPage", {transition: "slideup", allowSamePageTransition: true } );
 		that.setMenu();
 		that.currentView='streamView';
 		$("#loginPage").addClass("notActive");
@@ -131,7 +141,7 @@ function View(EventEmitter){
 			if( ! $(this).hasClass('disabled'))
 				E.EMIT("streamView_thumbsDown_taped");
 		});
-		$("#mainPage_selfies_name").text(user.Name+" "+user.Age);
+		$("#mainPage_selfies_name").text(user.Name+",   "+user.Age);
 		$("#mainPage_selfies_city").text(user.City);
 		var vid = $("#mainPage_selfies_selfieVid");
 		vid.attr('src',user.refs[0].Url);
@@ -159,8 +169,11 @@ function View(EventEmitter){
 		$(".spinner3").removeClass("notActive");
 	}
 	this.updateInboxView = function(){
+		$.mobile.changePage( "#mainPage", { transition: "slideup",allowSamePageTransition: true } );
+		console.log($.mobile.getActivePage);
 		that.currentView='inboxView';
 		that.setMenu();
+		clearBox();
 		// removing from view
 		$("#loginPage").addClass("notActive");
 		$("#loadingPage").addClass("notActive");
@@ -180,8 +193,10 @@ function View(EventEmitter){
 		$("#mainPage_likes_menuTitle").html("My Inbox");
 	}
 	this.updateMyLikesView = function(){
+		$.mobile.changePage( "#mainPage", {transition: "slideup", allowSamePageTransition: true } );
 		that.currentView ='myLikesView';
 		that.setMenu();
+		clearBox();
 
 		// removing from view
 		$("#loginPage").addClass("notActive");
@@ -203,8 +218,10 @@ function View(EventEmitter){
 		$("#mainPage_likes_menuTitle").html("My Likes");
 	}
 	this.updateLikersView = function(){
+		$.mobile.changePage( "#mainPage", {transition: "slideup", allowSamePageTransition: true } );
 		that.currentView='likersView';
 		that.setMenu();
+		clearBox();
 		// removing from view
 		$("#loginPage").addClass("notActive");
 		$("#loadingPage").addClass("notActive");
@@ -225,9 +242,9 @@ function View(EventEmitter){
 		$("#mainPage_likes_menuTitle").html("My fans");
 	}
 	this.setInboxView = function(inboxUsers){
-		if(!inboxSet){
 			inboxSet = true;
 			that.updateInboxView();
+			$("#mainPage_people_inbox").empty().on('scroll',checkScroll);
 			for(var i = 0; i<inboxUsers.length;i++){
 				var likesRowDiv = document.createElement("div");
 				likesRowDiv.className = "likesRow row row-xs-height";
@@ -277,15 +294,11 @@ function View(EventEmitter){
 				});
 				actionBut.text("Reply");		
 			});
-		}
-		else
-			that.updateInboxView();
 	}
 	this.setMyLikesView = function(){
-		if(!myLikesSet){
 			myLikesSet = true;
 			that.updateMyLikesView();
-			$("#mainPage_likes_people").empty().on('scroll',checkScroll);
+			$("#mainPage_people_myLikes").empty().on('scroll',checkScroll);
 			for(var i = 0; i < that.mediaLoader.myLikes.length; i++){
 				var likesRowDiv = document.createElement("div");
 				likesRowDiv.className = "likesRow row row-xs-height";
@@ -326,18 +339,14 @@ function View(EventEmitter){
 				});
 				actionBut.text("Message");		
 			});
-		}
-		else
-			that.updateMyLikesView();
 	}
 	this.enableRow = function(index){
 		$(".likesRow:eq("+index+")").removeClass("disabled");
 	}
 	this.setLikersView = function(){
-		if(!likersSet){
 			likersSet = true;
 			that.updateLikersView();
-			$("#mainPage_likes_people").empty().bind("scroll",checkScroll);
+			$("#mainPage_people_likers").empty().bind("scroll",checkScroll);
 			for(var i = 0; i < that.mediaLoader.likers.length; i++){
 				var likesRowDiv = document.createElement("div");
 				likesRowDiv.className = "likesRow row row-xs-height";
@@ -378,9 +387,6 @@ function View(EventEmitter){
 				});
 				actionBut.text("Message");		
 			});
-		}
-		else
-			that.updateLikersView();
 	}
 	function checkScroll(e){
 		var elem = $(e.currentTarget);

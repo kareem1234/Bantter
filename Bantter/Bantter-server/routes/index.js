@@ -7,6 +7,7 @@ var awsKey = credentials.accessKeyId;
 var secret = credentials.secretAccessKey;
 
 function errCallback(res){
+	console.log("error found");
 	var func = function(err){
 		if(err)
 			console.log(err);
@@ -21,8 +22,9 @@ exports.insertUser = function(req,res){
 	var callback = function(){
 			res.end();
 	};
-	db.insertUser(user,callback,errCallback(res));
-	db.insertIdPair(user.FbId,user.Id,callback,errCallback(res));
+	db.insertIdPair(user,function(){
+		db.insertUser(user,callback,errCallback(res));
+	},errCallback(res));
 }
 exports.insertLike = function(req,res){
 	convertPropsToNum(req.body);
@@ -78,9 +80,10 @@ exports.findWhoILike = function(req, res){
 }
 
 exports.getVideoRefs = function(req,res){
+	var type = req.query.Type;
 	convertPropsToNum(req.query);
 	db.findVidRefs(req.query.FromFbId,function(docs){;
-		res.json(docs);
+		res.json({Type:type,Refs:docs});
 	},errCallback(res));
 }
 exports.getInboxRefs = function(req,res){
@@ -138,14 +141,14 @@ checkPermision = function(userId, fbId,res, callback){
 	db.getIdPair(userId,function(docs){
 		if(docs.length == 0){
 				var er = errCallback(res);
-				er();
+				er("bad permission request");
 			}
 		else if(docs[0].FbId === fbId  && docs[0].UserId === userId){
 				callback(true);
 			}
 		else {
 			var er = errCallback(res);
-			er();
+			er("bad permission request");
 		}
 	},errCallback(res));
 }
